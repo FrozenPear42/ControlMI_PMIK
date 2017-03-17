@@ -4,3 +4,4 @@ load build/ControlMI_PMIK.elf
 monitor reset
 monitor go
 disconnect
+quit

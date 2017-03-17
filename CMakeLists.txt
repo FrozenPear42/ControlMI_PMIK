@@ -20,6 +20,8 @@ file(GLOB_RECURSE USER_SOURCES "Src/*.c")
 #####
 # CHANGE HERE
 file(GLOB_RECURSE HAL_SOURCES "Drivers/STM32F3xx_HAL_Driver/Src/*.c")
+file(GLOB_RECURSE USB_SOURCES "Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c")
+file(GLOB_RECURSE USB_CLASS_SOURCES "Middlewares/ST/STM32_USB_Device_Library/Class/AUDIO/Src/*.c")
 add_library(CMSIS Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f303xe.s)
 #####
 
@@ -28,11 +30,13 @@ include_directories(Drivers/CMSIS/Include)
 #####
 # CHANGE HERE
 include_directories(Drivers/STM32F3xx_HAL_Driver/Inc)
+include_directories(Middlewares/ST/STM32_USB_Device_Library/Core/Inc)
+include_directories(Middlewares/ST/STM32_USB_Device_Library/Class/AUDIO/Inc)
 include_directories(Drivers/CMSIS/Device/ST/STM32F3xx/Include)
 include_directories(usr/lib/arm-none-eabi/include)
 #####
 
-add_executable(${PROJECT_NAME}.elf ${USER_SOURCES} ${HAL_SOURCES} ${LINKER_SCRIPT})
+add_executable(${PROJECT_NAME}.elf ${HAL_SOURCES} ${USB_SOURCES} ${USB_CLASS_SOURCES} ${USER_SOURCES}  ${LINKER_SCRIPT})
 
 target_link_libraries(${PROJECT_NAME}.elf CMSIS)
 target_compile_definitions(${PROJECT_NAME}.elf PRIVATE STM32F303xE)
