@@ -1,5 +1,4 @@
-# !build/*.elf
-# build
+build
 .cproject
 .mxproject
 .project
