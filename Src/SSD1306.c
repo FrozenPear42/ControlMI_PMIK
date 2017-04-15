@@ -765,131 +765,130 @@ const uint8_t SSD1306_letters[26][16] = {
         0x00, /* 00000000 */
     }
 };
-
 #endif
 
-void SSD1306_init(I2C_HandleTypeDef* pI2C) {
+void SSD1306_init(SSD1306_Dev* pDisplay) {
     // Turn display off
-    SSD1306_sendCommand(pI2C, SSD1306_DISPLAYOFF);
+    SSD1306_sendCommand(pDisplay, SSD1306_DISPLAYOFF);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETDISPLAYCLOCKDIV);
-    SSD1306_sendCommand(pI2C, 0x80);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETDISPLAYCLOCKDIV);
+    SSD1306_sendCommand(pDisplay, 0x80);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETMULTIPLEX);
-    SSD1306_sendCommand(pI2C, 0x3F);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETMULTIPLEX);
+    SSD1306_sendCommand(pDisplay, 0x3F);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETDISPLAYOFFSET);
-    SSD1306_sendCommand(pI2C, 0x00);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETDISPLAYOFFSET);
+    SSD1306_sendCommand(pDisplay, 0x00);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETSTARTLINE | 0x00);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETSTARTLINE | 0x00);
 
     // We use internal charge pump
-    SSD1306_sendCommand(pI2C, SSD1306_CHARGEPUMP);
-    SSD1306_sendCommand(pI2C, 0x14);
+    SSD1306_sendCommand(pDisplay, SSD1306_CHARGEPUMP);
+    SSD1306_sendCommand(pDisplay, 0x14);
 
     // Horizontal memory mode
-    SSD1306_sendCommand(pI2C, SSD1306_MEMORYMODE);
-    SSD1306_sendCommand(pI2C, 0x00);
+    SSD1306_sendCommand(pDisplay, SSD1306_MEMORYMODE);
+    SSD1306_sendCommand(pDisplay, 0x00);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SEGREMAP | 0x1);
+    SSD1306_sendCommand(pDisplay, SSD1306_SEGREMAP | 0x1);
 
-    SSD1306_sendCommand(pI2C, SSD1306_COMSCANDEC);
+    SSD1306_sendCommand(pDisplay, SSD1306_COMSCANDEC);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETCOMPINS);
-    SSD1306_sendCommand(pI2C, 0x12);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETCOMPINS);
+    SSD1306_sendCommand(pDisplay, 0x12);
 
     // Max contrast
-    SSD1306_sendCommand(pI2C, SSD1306_SETCONTRAST);
-    SSD1306_sendCommand(pI2C, 0xCF);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETCONTRAST);
+    SSD1306_sendCommand(pDisplay, 0xCF);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETPRECHARGE);
-    SSD1306_sendCommand(pI2C, 0xF1);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETPRECHARGE);
+    SSD1306_sendCommand(pDisplay, 0xF1);
 
-    SSD1306_sendCommand(pI2C, SSD1306_SETVCOMDETECT);
-    SSD1306_sendCommand(pI2C, 0x40);
+    SSD1306_sendCommand(pDisplay, SSD1306_SETVCOMDETECT);
+    SSD1306_sendCommand(pDisplay, 0x40);
 
-    SSD1306_sendCommand(pI2C, SSD1306_DISPLAYALLON_RESUME);
+    SSD1306_sendCommand(pDisplay, SSD1306_DISPLAYALLON_RESUME);
 
     // Non-inverted display
-    SSD1306_sendCommand(pI2C, SSD1306_NORMALDISPLAY);
+    SSD1306_sendCommand(pDisplay, SSD1306_NORMALDISPLAY);
 
     // Turn display back on
-    SSD1306_sendCommand(pI2C, SSD1306_DISPLAYON);
+    SSD1306_sendCommand(pDisplay, SSD1306_DISPLAYON);
 }
 
-void SSD1306_sendFrameBuffer(I2C_HandleTypeDef* pI2C, uint8_t* pBuffer) {
+void SSD1306_sendFrameBuffer(SSD1306_Dev* pDisplay, uint8_t* pBuffer) {
     uint8_t frame[17];
     frame[0] = 0x40; //data transmission
-    SSD1306_sendCommand(pI2C, SSD1306_COLUMNADDR);
-    SSD1306_sendCommand(pI2C, 0x00);
-    SSD1306_sendCommand(pI2C, 0x7F);
+    SSD1306_sendCommand(pDisplay, SSD1306_COLUMNADDR);
+    SSD1306_sendCommand(pDisplay, 0x00);
+    SSD1306_sendCommand(pDisplay, 0x7F);
 
-    SSD1306_sendCommand(pI2C, SSD1306_PAGEADDR);
-    SSD1306_sendCommand(pI2C, 0x00);
-    SSD1306_sendCommand(pI2C, 0x07);
+    SSD1306_sendCommand(pDisplay, SSD1306_PAGEADDR);
+    SSD1306_sendCommand(pDisplay, 0x00);
+    SSD1306_sendCommand(pDisplay, 0x07);
 
     for( uint16_t packet = 0; packet < 64; ++packet ) {
         for( uint16_t i = 0; i < 16; ++i )
             frame[i + 1] = pBuffer[16 * packet + i];
-        HAL_I2C_Master_Transmit(pI2C, 0x78, frame, 17, 1000);
+        HAL_I2C_Master_Transmit(pDisplay->I2C, pDisplay->address, frame, 17, 1000);
     }
 }
 
-void SSD1306_invert(I2C_HandleTypeDef* pI2C, uint8_t pInvert) {
+void SSD1306_invert(SSD1306_Dev* pDisplay, uint8_t pInvert) {
     if( pInvert )
-        SSD1306_sendCommand(pI2C, SSD1306_INVERTDISPLAY);
+        SSD1306_sendCommand(pDisplay, SSD1306_INVERTDISPLAY);
     else
-        SSD1306_sendCommand(pI2C, SSD1306_NORMALDISPLAY);
+        SSD1306_sendCommand(pDisplay, SSD1306_NORMALDISPLAY);
 }
 
-void SSD1306_enable(I2C_HandleTypeDef* pI2C, uint8_t pEnable) {
+void SSD1306_enable(SSD1306_Dev* pDisplay, uint8_t pEnable) {
     if( pEnable )
-        SSD1306_sendCommand(pI2C, SSD1306_DISPLAYON);
+        SSD1306_sendCommand(pDisplay, SSD1306_DISPLAYON);
     else
-        SSD1306_sendCommand(pI2C, SSD1306_DISPLAYOFF);
+        SSD1306_sendCommand(pDisplay, SSD1306_DISPLAYOFF);
 }
-void SSD1306_sendCommand(I2C_HandleTypeDef* pI2C, uint8_t pCommand) {
+void SSD1306_sendCommand(SSD1306_Dev* pDisplay, uint8_t pCommand) {
     uint8_t data[2] = {0X00, pCommand};
-    HAL_I2C_Master_Transmit(pI2C, 0x78, data, 2, 1000);
+    HAL_I2C_Master_Transmit(pDisplay->I2C, pDisplay->address, data, 2, 1000);
 }
 
-void SSD1306_clear(I2C_HandleTypeDef* pI2C) {
+void SSD1306_clear(SSD1306_Dev* pDisplay) {
     uint8_t frame[17];
     frame[0] = 0x40;
     for( uint16_t i = 1; i < 17; ++i )
         frame[i] = 0;
 
-    SSD1306_sendCommand(pI2C, SSD1306_COLUMNADDR);
-    SSD1306_sendCommand(pI2C, 0x00);
-    SSD1306_sendCommand(pI2C, 0x7F);
+    SSD1306_sendCommand(pDisplay, SSD1306_COLUMNADDR);
+    SSD1306_sendCommand(pDisplay, 0x00);
+    SSD1306_sendCommand(pDisplay, 0x7F);
 
-    SSD1306_sendCommand(pI2C, SSD1306_PAGEADDR);
-    SSD1306_sendCommand(pI2C, 0x00);
-    SSD1306_sendCommand(pI2C, 0x07);
+    SSD1306_sendCommand(pDisplay, SSD1306_PAGEADDR);
+    SSD1306_sendCommand(pDisplay, 0x00);
+    SSD1306_sendCommand(pDisplay, 0x07);
 
     for( uint16_t packet = 0; packet < 64; ++packet ) {
-        HAL_I2C_Master_Transmit(pI2C, 0x78, frame, 17, 1000);
+        HAL_I2C_Master_Transmit(pDisplay->I2C, pDisplay->address, frame, 17, 1000);
     }
 }
 
 uint8_t* getGlyph(char pGlyph) {
     if( pGlyph >= 'A' && pGlyph <= 'Z' )
-        return SSD1306_letters[pGlyph - 'A'];
+        return (uint8_t*) SSD1306_letters[pGlyph - 'A'];
     else if( pGlyph >= 'a' && pGlyph <= 'z' )
-        return SSD1306_letters[pGlyph - 'a'];
+        return (uint8_t*) SSD1306_letters[pGlyph - 'a'];
     else if( pGlyph >= '0' && pGlyph <= '9' )
-        return SSD1306_digits[pGlyph - '0'];
+        return (uint8_t*) SSD1306_digits[pGlyph - '0'];
     else if( pGlyph == '.' )
-        return SSD_1306_dot;
+        return (uint8_t*) SSD_1306_dot;
     else if( pGlyph == ':' )
-        return SSD_1306_colon;
+        return (uint8_t*) SSD_1306_colon;
     else if( pGlyph == '%' )
-        return SSD_1306_percent;
+        return (uint8_t*) SSD_1306_percent;
     else
-        return SSD_1306_blank;
+        return (uint8_t*) SSD_1306_blank;
 }
 
-void SSD1306_drawGlyph(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, uint8_t* pGlyph) {
+void SSD1306_drawGlyph(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, uint8_t* pGlyph) {
     uint8_t frame[17];
     uint8_t off;
     frame[0] = 0x40;
@@ -903,32 +902,32 @@ void SSD1306_drawGlyph(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, uint8_t*
                 frame[x + off + 1] &= ~(1 << (y & 7));
         }
     }
-    SSD1306_sendCommand(pI2C, SSD1306_COLUMNADDR);
-    SSD1306_sendCommand(pI2C, pX);
-    SSD1306_sendCommand(pI2C, pX + 7);
+    SSD1306_sendCommand(pDisplay, SSD1306_COLUMNADDR);
+    SSD1306_sendCommand(pDisplay, pX);
+    SSD1306_sendCommand(pDisplay, pX + 7);
 
-    SSD1306_sendCommand(pI2C, SSD1306_PAGEADDR);
-    SSD1306_sendCommand(pI2C, pY / 8);
-    SSD1306_sendCommand(pI2C, (pY / 8) + 1);
+    SSD1306_sendCommand(pDisplay, SSD1306_PAGEADDR);
+    SSD1306_sendCommand(pDisplay, pY / 8);
+    SSD1306_sendCommand(pDisplay, (pY / 8) + 1);
 
-    HAL_I2C_Master_Transmit(pI2C, 0x78, frame, 17, 1000);
+    HAL_I2C_Master_Transmit(pDisplay->I2C, pDisplay->address, frame, 17, 1000);
 }
 
-void SSD1306_drawChar(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char pGlyph) {
-    SSD1306_drawGlyph(pI2C, pX, pY, getGlyph(pGlyph));
+void SSD1306_drawChar(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char pGlyph) {
+    SSD1306_drawGlyph(pDisplay, pX, pY, getGlyph(pGlyph));
 }
 
-void SSD1306_drawString(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen) {
+void SSD1306_drawString(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen) {
     uint8_t i;
     for( i = 0; i < pLen && pString[i] != '\0'; ++i )
-        SSD1306_drawChar(pI2C, pX + 8 * i, pY, pString[i]);
+        SSD1306_drawChar(pDisplay, pX + 8 * i, pY, pString[i]);
     for(; i < pLen; ++i)
-        SSD1306_drawGlyph(pI2C, pX + 8 * i, pY, SSD_1306_blank);
+        SSD1306_drawGlyph(pDisplay, pX + 8 * i, pY, (uint8_t*) SSD_1306_blank);
 }
 
-void SSD1306_drawStringRight(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen) {
+void SSD1306_drawStringRight(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen) {
     for( uint8_t i = 0; i < pLen; ++i )
-        SSD1306_drawChar(pI2C, pX - 8 * i, pY, pString[pLen - i - 1]);
+        SSD1306_drawChar(pDisplay, pX - 8 * i, pY, pString[pLen - i - 1]);
 }
 
 void FrameBuffer_drawPixel(uint8_t* pBuffer, uint8_t pX, uint8_t pY, uint8_t pOn) {

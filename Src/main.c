@@ -90,6 +90,7 @@ int main(void) {
     /* USER CODE BEGIN 1 */
     uint32_t count = 0;
     char buff[10];
+    SSD1306_Dev display;
     /* USER CODE END 1 */
 
     /* MCU Configuration----------------------------------------------------------*/
@@ -110,14 +111,17 @@ int main(void) {
     MX_TIM20_Init();
 
     /* USER CODE BEGIN 2 */
+    display.I2C = &hi2c1;
+    display.address = 0x78;
+
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-//    SSD1306_init(&hi2c1);
-//    SSD1306_enable(&hi2c1, 1);
-//    SSD1306_clear(&hi2c1);
-//    SSD1306_drawString(&hi2c1, 0, 0, "Control MI PMIK", 16);
-//    SSD1306_drawString(&hi2c1, 0, 16, "Test", 6);
-//    SSD1306_drawString(&hi2c1, 0, 32, "VEL: 64", 10);
-//    SSD1306_drawString(&hi2c1, 0, 48, "SUS: 80%", 10);
+    SSD1306_init(&display);
+    SSD1306_enable(&display, 1);
+    SSD1306_clear(&display);
+    SSD1306_drawString(&display, 0, 0, "Control MI PMIK", 16);
+    SSD1306_drawString(&display, 0, 16, "Test", 6);
+    SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
+    SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
     /* USER CODE END 2 */
 
@@ -131,8 +135,8 @@ int main(void) {
 
         if( count != TIM20->CNT / 4 ) {
             count = TIM20->CNT / 4;
-//            itoa(count, buff, 10);
-//            SSD1306_drawString(&hi2c1, 0, 16, buff, 10);
+            itoa(count, buff, 10);
+            SSD1306_drawString(&display, 0, 16, buff, 10);
         }
 
     }

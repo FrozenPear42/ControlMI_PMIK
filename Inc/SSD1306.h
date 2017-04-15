@@ -33,18 +33,23 @@
 #define SSD1306_SWITCHCAPVCC        0x02
 #define SSD1306_NOP                 0xE3
 
-void SSD1306_init(I2C_HandleTypeDef* pI2C);
-void SSD1306_enable(I2C_HandleTypeDef* pI2C, uint8_t pEnable);
-void SSD1306_invert(I2C_HandleTypeDef* pI2C, uint8_t pInvert);
-void SSD1306_sendFrameBuffer(I2C_HandleTypeDef* pI2C, uint8_t* pBuffer);
+typedef struct {
+    I2C_HandleTypeDef* I2C;
+    uint8_t address;
+} SSD1306_Dev;
 
-void SSD1306_sendCommand(I2C_HandleTypeDef* pI2C, uint8_t pCommand);
+void SSD1306_init(SSD1306_Dev* pDisplay);
+void SSD1306_enable(SSD1306_Dev* pDisplay, uint8_t pEnable);
+void SSD1306_invert(SSD1306_Dev* pDisplay, uint8_t pInvert);
+void SSD1306_sendFrameBuffer(SSD1306_Dev* pDisplay, uint8_t* pBuffer);
 
-void SSD1306_clear(I2C_HandleTypeDef* pI2C);
-void SSD1306_drawGlyph(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, uint8_t* pGlyph);
-void SSD1306_drawChar(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char pChar);
-void SSD1306_drawString(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
-void SSD1306_drawStringRight(I2C_HandleTypeDef* pI2C, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
+void SSD1306_sendCommand(SSD1306_Dev* pDisplay, uint8_t pCommand);
+
+void SSD1306_clear(SSD1306_Dev* pDisplay);
+void SSD1306_drawGlyph(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, uint8_t* pGlyph);
+void SSD1306_drawChar(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char pChar);
+void SSD1306_drawString(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
+void SSD1306_drawStringRight(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
 
 uint8_t* getGlyph(char pGlyph);
 
