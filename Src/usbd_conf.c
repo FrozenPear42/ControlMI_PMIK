@@ -42,11 +42,11 @@
   ******************************************************************************
 */
 /* Includes ------------------------------------------------------------------*/
+#include <usbd_midi.h>
 #include "stm32f3xx.h"
 #include "stm32f3xx_hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
-#include "usbd_audio.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -710,7 +710,7 @@ void  USBD_LL_Delay (uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint8_t mem[sizeof(USBD_AUDIO_HandleTypeDef)];
+  static uint8_t mem[sizeof(USBD_MIDI_ItfTypeDef)];
   return mem;
 }
 
