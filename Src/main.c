@@ -47,9 +47,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <SSD1306.h>
-#include <stm32f303xe.h>
-#include <stdlib.h>
-#include <usbd_midi_if.h>
+#include <SWO.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -103,31 +101,37 @@ int main(void) {
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_ADC1_Init();
-    MX_I2C1_Init();
-    MX_USART3_UART_Init();
-    MX_USB_DEVICE_Init();
-    MX_TIM20_Init();
-    MX_I2C2_Init();
+    //MX_GPIO_Init();
+    //MX_ADC1_Init();
+    //MX_I2C1_Init();
+    //MX_USART3_UART_Init();
+    //MX_USB_DEVICE_Init();
+    //MX_TIM20_Init();
+    //MX_I2C2_Init();
 
     /* USER CODE BEGIN 2 */
+
+    HAL_Delay(1000);
+    while( 1 )
+        SWO_PrintString("Debug\r\n");
+
     display.I2C = &hi2c1;
     display.address = 0x78;
-
-    HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
 
     SSD1306_init(&display);
     SSD1306_enable(&display, 1);
     SSD1306_clear(&display);
     SSD1306_drawString(&display, 0, 0, "Control MI PMIK", 16);
-    SSD1306_drawString(&display, 0, 16, "Test", 6);
+    SSD1306_drawString(&display, 0, 16, "Test AAA", 10);
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
 
-    sendCC(1,0, 127);
-    USBD_MIDI_SendPacket();
+//    char data[3] = {'c', 'd', '\0'};
+    //HAL_UART_Transmit(&huart3, data, 3, 5000);
+
+    //sendCC(1, 0, 127);
+    //USBD_MIDI_SendPacket();
     /* USER CODE END 2 */
 
     /* Infinite loop */
