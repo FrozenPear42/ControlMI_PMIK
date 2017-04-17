@@ -2,6 +2,7 @@
 #define __USBD_MIDI_IF_H
 
 #include <usbd_desc.h>
+#include <usbd_midi.h>
 
 #ifdef __cplusplus
 extern "C" {

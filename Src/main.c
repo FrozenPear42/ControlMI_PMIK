@@ -49,16 +49,17 @@
 #include <SSD1306.h>
 #include <stm32f303xe.h>
 #include <stdlib.h>
+#include <usbd_midi_if.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
 I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim20;
 
-UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -73,8 +74,8 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_UART4_Init(void);
 static void MX_TIM20_Init(void);
+static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -106,15 +107,16 @@ int main(void) {
     MX_ADC1_Init();
     MX_I2C1_Init();
     MX_USART3_UART_Init();
-    MX_UART4_Init();
     MX_USB_DEVICE_Init();
     MX_TIM20_Init();
+    MX_I2C2_Init();
 
     /* USER CODE BEGIN 2 */
     display.I2C = &hi2c1;
     display.address = 0x78;
 
-    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+
     SSD1306_init(&display);
     SSD1306_enable(&display, 1);
     SSD1306_clear(&display);
@@ -123,16 +125,17 @@ int main(void) {
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
+
+    sendCC(1,0, 127);
+    USBD_MIDI_SendPacket();
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while( 1 ) {
         /* USER CODE END WHILE */
-        /* USER CODE BEGIN 3 */
-        HAL_Delay(1000);
-        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
+        /* USER CODE BEGIN 3 */
         if( count != TIM20->CNT / 4 ) {
             count = TIM20->CNT / 4;
             itoa(count, buff, 10);
@@ -180,12 +183,12 @@ void SystemClock_Config(void) {
     }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART3
-                                         | RCC_PERIPHCLK_UART4 | RCC_PERIPHCLK_I2C1
+                                         | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C2
                                          | RCC_PERIPHCLK_ADC12 | RCC_PERIPHCLK_TIM20;
     PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-    PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
     PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
+    PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
     PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
     PeriphClkInit.Tim20ClockSelection = RCC_TIM20CLK_HCLK;
     if( HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK ) {
@@ -276,6 +279,30 @@ static void MX_I2C1_Init(void) {
 
 }
 
+/* I2C2 init function */
+static void MX_I2C2_Init(void) {
+
+    hi2c2.Instance = I2C2;
+    hi2c2.Init.Timing = 0x2000090E;
+    hi2c2.Init.OwnAddress1 = 0;
+    hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c2.Init.OwnAddress2 = 0;
+    hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    if( HAL_I2C_Init(&hi2c2) != HAL_OK ) {
+        Error_Handler();
+    }
+
+    /**Configure Analogue filter 
+    */
+    if( HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK ) {
+        Error_Handler();
+    }
+
+}
+
 /* TIM20 init function */
 static void MX_TIM20_Init(void) {
 
@@ -305,25 +332,6 @@ static void MX_TIM20_Init(void) {
     sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
     if( HAL_TIMEx_MasterConfigSynchronization(&htim20, &sMasterConfig) != HAL_OK ) {
-        Error_Handler();
-    }
-
-}
-
-/* UART4 init function */
-static void MX_UART4_Init(void) {
-
-    huart4.Instance = UART4;
-    huart4.Init.BaudRate = 115200;
-    huart4.Init.WordLength = UART_WORDLENGTH_8B;
-    huart4.Init.StopBits = UART_STOPBITS_1;
-    huart4.Init.Parity = UART_PARITY_NONE;
-    huart4.Init.Mode = UART_MODE_TX_RX;
-    huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-    huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if( HAL_UART_Init(&huart4) != HAL_OK ) {
         Error_Handler();
     }
 
@@ -369,13 +377,13 @@ static void MX_GPIO_Init(void) {
     __HAL_RCC_GPIOG_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, LD3_Pin | LD2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LD1_Pin | LD3_Pin | LD2_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : LD3_Pin LD2_Pin */
-    GPIO_InitStruct.Pin = LD3_Pin | LD2_Pin;
+    /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
+    GPIO_InitStruct.Pin = LD1_Pin | LD3_Pin | LD2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
