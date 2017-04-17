@@ -7,10 +7,6 @@ SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F303ZETx_FLASH.ld)
 SET(COMMON_FLAGS "-O3 -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -fno-builtin -ffunction-sections -fdata-sections -gdwarf-2 -g -fno-common -fmessage-length=0")
 #####
 
-set(CMAKE_ASM_COMPILER arm-none-eabi-as)
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
 SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections -T ${LINKER_SCRIPT}")
@@ -36,18 +32,23 @@ include_directories(Drivers/CMSIS/Device/ST/STM32F3xx/Include)
 include_directories(usr/lib/arm-none-eabi/include)
 #####
 
-add_executable(${PROJECT_NAME}.elf ${HAL_SOURCES} ${USB_SOURCES} ${USB_CLASS_SOURCES} ${USER_SOURCES}  ${LINKER_SCRIPT})
+add_executable(${PROJECT_NAME}.elf ${HAL_SOURCES} ${USB_SOURCES} ${USB_CLASS_SOURCES} ${USER_SOURCES} ${LINKER_SCRIPT})
 
 target_link_libraries(${PROJECT_NAME}.elf CMSIS)
-target_compile_definitions(${PROJECT_NAME}.elf PRIVATE STM32F303xE)
+target_compile_definitions(${PROJECT_NAME}.elf PUBLIC STM32F303xE)
+
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.map")
 set(HEX_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.bin)
 set(ELF_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.elf)
-add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMAND echo Sections:
-        COMMAND readelf -S $<TARGET_FILE:${PROJECT_NAME}.elf> | grep 'Name\\|isr\\|text\\|bss\\|data\\|array'
-        COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
+
+#if (WIN32)
+#else ()
+#    add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
+#            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
+#            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
+#            COMMAND echo Sections:
+#            COMMAND readelf -S $<TARGET_FILE:${PROJECT_NAME}.elf> | grep 'Name\\|isr\\|text\\|bss\\|data\\|array'
+#            COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
+#endif ()
