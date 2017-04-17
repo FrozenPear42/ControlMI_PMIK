@@ -31,7 +31,7 @@ static uint16_t MIDI_DataRx(uint8_t* msg, uint16_t length) {
         default:
             break;
     }
-    return 0;
+    return USBD_OK;
 }
 
 static uint16_t MIDI_DataTx(uint8_t* msg, uint16_t length) {
@@ -64,11 +64,11 @@ void sendNoteOff(uint8_t ch, uint8_t note) {
     MIDI_DataTx(buffer, 4);
 }
 
-void sendCC(uint8_t ch, uint8_t num, uint8_t value) {
+void sendCC(uint8_t ch, uint8_t ccNum, uint8_t value) {
     uint8_t buffer[4];
     buffer[0] = 0x0b;
     buffer[1] = 0xb0 | ch;
-    buffer[2] = 0x7f & num;
+    buffer[2] = 0x7f & ccNum;
     buffer[3] = 0x7f & value;
     MIDI_DataTx(buffer, 4);
 }
