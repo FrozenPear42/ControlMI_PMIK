@@ -67,12 +67,19 @@ UART_HandleTypeDef huart3;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+
 void Error_Handler(void);
+
 static void MX_GPIO_Init(void);
+
 static void MX_ADC1_Init(void);
+
 static void MX_I2C1_Init(void);
+
 static void MX_USART3_UART_Init(void);
+
 static void MX_TIM20_Init(void);
+
 static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -101,19 +108,16 @@ int main(void) {
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
-    //MX_GPIO_Init();
-    //MX_ADC1_Init();
-    //MX_I2C1_Init();
-    //MX_USART3_UART_Init();
+    MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_I2C1_Init();
+    MX_USART3_UART_Init();
     //MX_USB_DEVICE_Init();
-    //MX_TIM20_Init();
-    //MX_I2C2_Init();
+    MX_TIM20_Init();
+    MX_I2C2_Init();
 
     /* USER CODE BEGIN 2 */
 
-    HAL_Delay(1000);
-    while( 1 )
-        SWO_PrintString("Debug\r\n");
 
     display.I2C = &hi2c1;
     display.address = 0x78;
@@ -136,14 +140,18 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while( 1 ) {
+    while (1) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        if( count != TIM20->CNT / 4 ) {
+
+        if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
             itoa(count, buff, 10);
             SSD1306_drawString(&display, 0, 16, buff, 10);
+            SWO_PrintString("Count ");
+            SWO_PrintString(buff);
+            SWO_PrintString("\r\n");
         }
 
     }
@@ -169,7 +177,7 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
     RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
-    if( HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK ) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         Error_Handler();
     }
 
@@ -182,7 +190,7 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if( HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK ) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
         Error_Handler();
     }
 
@@ -195,7 +203,7 @@ void SystemClock_Config(void) {
     PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
     PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
     PeriphClkInit.Tim20ClockSelection = RCC_TIM20CLK_HCLK;
-    if( HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK ) {
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
         Error_Handler();
     }
 
@@ -233,7 +241,7 @@ static void MX_ADC1_Init(void) {
     hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait = DISABLE;
     hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-    if( HAL_ADC_Init(&hadc1) != HAL_OK ) {
+    if (HAL_ADC_Init(&hadc1) != HAL_OK) {
         Error_Handler();
     }
 
@@ -241,7 +249,7 @@ static void MX_ADC1_Init(void) {
     */
     multimode.DMAAccessMode = ADC_DMAACCESSMODE_DISABLED;
     multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_1CYCLE;
-    if( HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK ) {
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK) {
         Error_Handler();
     }
 
@@ -253,7 +261,7 @@ static void MX_ADC1_Init(void) {
     sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
-    if( HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK ) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
         Error_Handler();
     }
 
@@ -271,13 +279,13 @@ static void MX_I2C1_Init(void) {
     hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
     hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-    if( HAL_I2C_Init(&hi2c1) != HAL_OK ) {
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
         Error_Handler();
     }
 
     /**Configure Analogue filter 
     */
-    if( HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK ) {
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
         Error_Handler();
     }
 
@@ -295,13 +303,13 @@ static void MX_I2C2_Init(void) {
     hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
     hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-    if( HAL_I2C_Init(&hi2c2) != HAL_OK ) {
+    if (HAL_I2C_Init(&hi2c2) != HAL_OK) {
         Error_Handler();
     }
 
     /**Configure Analogue filter 
     */
-    if( HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK ) {
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
         Error_Handler();
     }
 
@@ -328,14 +336,14 @@ static void MX_TIM20_Init(void) {
     sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
     sConfig.IC2Filter = 15;
-    if( HAL_TIM_Encoder_Init(&htim20, &sConfig) != HAL_OK ) {
+    if (HAL_TIM_Encoder_Init(&htim20, &sConfig) != HAL_OK) {
         Error_Handler();
     }
 
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    if( HAL_TIMEx_MasterConfigSynchronization(&htim20, &sMasterConfig) != HAL_OK ) {
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim20, &sMasterConfig) != HAL_OK) {
         Error_Handler();
     }
 
@@ -354,7 +362,7 @@ static void MX_USART3_UART_Init(void) {
     huart3.Init.OverSampling = UART_OVERSAMPLING_16;
     huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if( HAL_UART_Init(&huart3) != HAL_OK ) {
+    if (HAL_UART_Init(&huart3) != HAL_OK) {
         Error_Handler();
     }
 
@@ -420,7 +428,7 @@ static void MX_GPIO_Init(void) {
 void Error_Handler(void) {
     /* USER CODE BEGIN Error_Handler */
     /* User can add his own implementation to report the HAL error return state */
-    while( 1 ) {
+    while (1) {
     }
     /* USER CODE END Error_Handler */
 }
