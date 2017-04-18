@@ -112,12 +112,13 @@ int main(void) {
     MX_ADC1_Init();
     MX_I2C1_Init();
     MX_USART3_UART_Init();
-    //MX_USB_DEVICE_Init();
+    MX_USB_DEVICE_Init();
     MX_TIM20_Init();
     MX_I2C2_Init();
 
     /* USER CODE BEGIN 2 */
 
+    HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_SET);
 
     display.I2C = &hi2c1;
     display.address = 0x78;
