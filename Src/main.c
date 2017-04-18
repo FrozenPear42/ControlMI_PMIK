@@ -64,7 +64,7 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint16_t adcBuffer[6];
+uint16_t adcPadBuffer[16];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,16 +93,22 @@ static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN 0 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
-    char buff[10];
     SWO_PrintString("ADC Conversion completed\r\n");
-    for (uint8_t i = 0; i < 6; ++i) {
-        SWO_PrintString("Channel ");
-        itoa(i, buff, 10);
-        SWO_PrintString(buff);
-        SWO_PrintString(": ");
-        itoa(((1 + adcBuffer[i]) * 100) / 4096, buff, 10);
-        SWO_PrintString(buff);
-        SWO_PrintString("\r\n");
+
+    char buff[10];
+    if (hadc->Instance == ADC1) {
+        SWO_PrintString("ADC1 Conversion completed\r\n");
+        for (uint8_t i = 0; i < 11; ++i) {
+            adcPadBuffer[i] = (uint16_t) (((8 + adcPadBuffer[i]) * 100) / 4096);
+            SWO_PrintString("Channel ");
+            itoa(i + 1, buff, 10);
+            SWO_PrintString(buff);
+            SWO_PrintString(": ");
+            itoa(adcPadBuffer[i], buff, 10);
+            SWO_PrintString(buff);
+            SWO_PrintString("\r\n");
+        }
+//        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
     }
 }
 
@@ -150,7 +156,7 @@ int main(void) {
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcBuffer, 6);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
 
     /* USER CODE END 2 */
 
@@ -169,7 +175,7 @@ int main(void) {
             SWO_PrintString("\r\n");
             sendCC(0, 1, (uint8_t) ((count * 127) / 100));
             USBD_MIDI_SendPacket();
-            HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcBuffer, 6);
+            HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
 
         }
 
@@ -255,7 +261,7 @@ static void MX_ADC1_Init(void) {
     hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
     hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
     hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion = 6;
+    hadc1.Init.NbrOfConversion = 11;
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait = DISABLE;
@@ -320,6 +326,46 @@ static void MX_ADC1_Init(void) {
     */
     sConfig.Channel = ADC_CHANNEL_6;
     sConfig.Rank = 6;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_7;
+    sConfig.Rank = 7;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_8;
+    sConfig.Rank = 8;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_9;
+    sConfig.Rank = 9;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_10;
+    sConfig.Rank = 10;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_14;
+    sConfig.Rank = 11;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
         Error_Handler();
     }
