@@ -54,8 +54,10 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
+DMA_HandleTypeDef hdma_adc3;
 
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
@@ -68,7 +70,9 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint16_t adcPadBuffer[16];
+uint16_t adcBuffer[40];
+uint16_t* adcPadBuffer = adcBuffer;
+uint16_t* adcSliderBuffer = adcBuffer + 16;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,6 +97,8 @@ static void MX_I2C2_Init(void);
 static void MX_ADC2_Init(void);
 
 static void MX_TSC_Init(void);
+
+static void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -131,6 +137,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
         }
 //        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
     }
+
+    if (hadc->Instance == ADC3) {
+        SWO_PrintString("ADC3 Conversion completed\r\n");
+        for (uint8_t i = 0; i < 8; ++i) {
+            adcSliderBuffer[i] = (uint16_t) (((8 + adcSliderBuffer[i]) * 100) / 4096);
+            SWO_PrintString("Slider ");
+            itoa(i + 1, buff, 10);
+            SWO_PrintString(buff);
+            SWO_PrintString(": ");
+            itoa(adcSliderBuffer[i], buff, 10);
+            SWO_PrintString(buff);
+            SWO_PrintString("\r\n");
+        }
+//        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
+    }
+
 }
 
 /* USER CODE END 0 */
@@ -162,6 +184,7 @@ int main(void) {
     MX_I2C2_Init();
     MX_ADC2_Init();
     MX_TSC_Init();
+    MX_ADC3_Init();
 
     /* USER CODE BEGIN 2 */
 
@@ -181,6 +204,7 @@ int main(void) {
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
     HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
+    HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
 
     /* USER CODE END 2 */
 
@@ -201,7 +225,7 @@ int main(void) {
             USBD_MIDI_SendPacket();
             HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
             HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
-
+            HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
         }
 
     }
@@ -246,9 +270,11 @@ void SystemClock_Config(void) {
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART3
                                          | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C2
-                                         | RCC_PERIPHCLK_ADC12 | RCC_PERIPHCLK_TIM20;
+                                         | RCC_PERIPHCLK_ADC12 | RCC_PERIPHCLK_ADC34
+                                         | RCC_PERIPHCLK_TIM20;
     PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+    PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
     PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
     PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
     PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
@@ -465,6 +491,110 @@ static void MX_ADC2_Init(void) {
 
 }
 
+/* ADC3 init function */
+static void MX_ADC3_Init(void) {
+
+    ADC_MultiModeTypeDef multimode;
+    ADC_ChannelConfTypeDef sConfig;
+
+    /**Common config 
+    */
+    hadc3.Instance = ADC3;
+    hadc3.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+    hadc3.Init.Resolution = ADC_RESOLUTION_12B;
+    hadc3.Init.ScanConvMode = ADC_SCAN_ENABLE;
+    hadc3.Init.ContinuousConvMode = DISABLE;
+    hadc3.Init.DiscontinuousConvMode = DISABLE;
+    hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc3.Init.NbrOfConversion = 8;
+    hadc3.Init.DMAContinuousRequests = ENABLE;
+    hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+    hadc3.Init.LowPowerAutoWait = DISABLE;
+    hadc3.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+    if (HAL_ADC_Init(&hadc3) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure the ADC multi-mode 
+    */
+    multimode.DMAAccessMode = ADC_DMAACCESSMODE_DISABLED;
+    multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_1CYCLE;
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc3, &multimode) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_1;
+    sConfig.Rank = 1;
+    sConfig.SingleDiff = ADC_SINGLE_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_19CYCLES_5;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset = 0;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_2;
+    sConfig.Rank = 2;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank = 3;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_5;
+    sConfig.Rank = 4;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_6;
+    sConfig.Rank = 5;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_7;
+    sConfig.Rank = 6;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_8;
+    sConfig.Rank = 7;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /**Configure Regular Channel 
+    */
+    sConfig.Channel = ADC_CHANNEL_13;
+    sConfig.Rank = 8;
+    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK) {
+        Error_Handler();
+    }
+
+}
+
 /* I2C1 init function */
 static void MX_I2C1_Init(void) {
 
@@ -605,6 +735,9 @@ static void MX_DMA_Init(void) {
     /* DMA2_Channel1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+    /* DMA2_Channel5_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
 
 }
 
