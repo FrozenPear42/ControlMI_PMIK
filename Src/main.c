@@ -48,6 +48,7 @@
 /* USER CODE BEGIN Includes */
 #include <SSD1306.h>
 #include <SWO.h>
+#include <usbd_midi_if.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,7 +63,7 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint32_t adcBuffer[6];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,6 +89,9 @@ static void MX_I2C2_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+    SWO_PrintString("ADC Conversion completed");
+}
 
 /* USER CODE END 0 */
 
@@ -131,12 +135,7 @@ int main(void) {
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
-
-//    char data[3] = {'c', 'd', '\0'};
-    //HAL_UART_Transmit(&huart3, data, 3, 5000);
-
-    //sendCC(1, 0, 127);
-    //USBD_MIDI_SendPacket();
+    HAL_ADC_Start_DMA(&hadc1, adcBuffer, 6);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -145,7 +144,6 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-
         if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
             itoa(count, buff, 10);
@@ -153,6 +151,8 @@ int main(void) {
             SWO_PrintString("Count ");
             SWO_PrintString(buff);
             SWO_PrintString("\r\n");
+            sendCC(0, 1, (uint8_t) ((count * 127) / 100));
+            USBD_MIDI_SendPacket();
         }
 
     }
