@@ -50,6 +50,8 @@ extern DMA_HandleTypeDef hdma_adc2;
 
 extern DMA_HandleTypeDef hdma_adc3;
 
+extern DMA_HandleTypeDef hdma_tim15_ch1_up_trig_com;
+
 extern void Error_Handler(void);
 /* USER CODE BEGIN 0 */
 
@@ -504,6 +506,46 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
 }
 
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
+{
+
+  if(htim_pwm->Instance==TIM15)
+  {
+  /* USER CODE BEGIN TIM15_MspInit 0 */
+
+  /* USER CODE END TIM15_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM15_CLK_ENABLE();
+
+    /* Peripheral DMA init*/
+  
+    hdma_tim15_ch1_up_trig_com.Instance = DMA1_Channel5;
+    hdma_tim15_ch1_up_trig_com.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_tim15_ch1_up_trig_com.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_tim15_ch1_up_trig_com.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_tim15_ch1_up_trig_com.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_tim15_ch1_up_trig_com.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_tim15_ch1_up_trig_com.Init.Mode = DMA_CIRCULAR;
+    hdma_tim15_ch1_up_trig_com.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_tim15_ch1_up_trig_com) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    /* Several peripheral DMA handle pointers point to the same DMA handle.
+     Be aware that there is only one channel to perform all the requested DMAs. */
+    __HAL_LINKDMA(htim_pwm,hdma[TIM_DMA_ID_CC1],hdma_tim15_ch1_up_trig_com);
+    __HAL_LINKDMA(htim_pwm,hdma[TIM_DMA_ID_UPDATE],hdma_tim15_ch1_up_trig_com);
+    __HAL_LINKDMA(htim_pwm,hdma[TIM_DMA_ID_TRIGGER],hdma_tim15_ch1_up_trig_com);
+    __HAL_LINKDMA(htim_pwm,hdma[TIM_DMA_ID_COMMUTATION],hdma_tim15_ch1_up_trig_com);
+
+  /* USER CODE BEGIN TIM15_MspInit 1 */
+
+  /* USER CODE END TIM15_MspInit 1 */
+  }
+
+}
+
 void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_encoder)
 {
 
@@ -531,6 +573,56 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_encoder)
 
   /* USER CODE END TIM20_MspInit 1 */
   }
+
+}
+
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(htim->Instance==TIM15)
+  {
+  /* USER CODE BEGIN TIM15_MspPostInit 0 */
+
+  /* USER CODE END TIM15_MspPostInit 0 */
+  
+    /**TIM15 GPIO Configuration    
+    PF9     ------> TIM15_CH1 
+    */
+    GPIO_InitStruct.Pin = WS2812_OUT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF3_TIM15;
+    HAL_GPIO_Init(WS2812_OUT_GPIO_Port, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN TIM15_MspPostInit 1 */
+
+  /* USER CODE END TIM15_MspPostInit 1 */
+  }
+
+}
+
+void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
+{
+
+  if(htim_pwm->Instance==TIM15)
+  {
+  /* USER CODE BEGIN TIM15_MspDeInit 0 */
+
+  /* USER CODE END TIM15_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM15_CLK_DISABLE();
+
+    /* Peripheral DMA DeInit*/
+    HAL_DMA_DeInit(htim_pwm->hdma[TIM_DMA_ID_CC1]);
+    HAL_DMA_DeInit(htim_pwm->hdma[TIM_DMA_ID_UPDATE]);
+    HAL_DMA_DeInit(htim_pwm->hdma[TIM_DMA_ID_TRIGGER]);
+    HAL_DMA_DeInit(htim_pwm->hdma[TIM_DMA_ID_COMMUTATION]);
+  }
+  /* USER CODE BEGIN TIM15_MspDeInit 1 */
+
+  /* USER CODE END TIM15_MspDeInit 1 */
 
 }
 

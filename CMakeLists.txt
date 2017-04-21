@@ -3,7 +3,7 @@ project(ControlMI_PMIK C ASM)
 
 #####
 # CHANGE HERE
-SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F303ZETx_FLASH.ld )
+SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F303ZETx_FLASH.ld)
 SET(COMMON_FLAGS "-O3 -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -fno-builtin -ffunction-sections -fdata-sections -gdwarf-2 -g -fno-common -fmessage-length=0")
 #####
 
@@ -43,12 +43,12 @@ set(HEX_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.bin)
 set(ELF_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.elf)
 
-#if (WIN32)
-#else ()
-#    add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-#            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
-#            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-#            COMMAND echo Sections:
-#            COMMAND readelf -S $<TARGET_FILE:${PROJECT_NAME}.elf> | grep 'Name\\|isr\\|text\\|bss\\|data\\|array'
-#            COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
-#endif ()
+if (WIN32)
+else ()
+    add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
+            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
+            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
+            COMMAND echo Sections:
+            COMMAND arm-none-eabi-readelf -S $<TARGET_FILE:${PROJECT_NAME}.elf># | grep 'Name\\|isr\\|text\\|bss\\|data\\|array'
+            COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
+endif ()

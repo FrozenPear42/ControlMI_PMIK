@@ -47,6 +47,7 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
+extern DMA_HandleTypeDef hdma_tim15_ch1_up_trig_com;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -111,6 +112,20 @@ void DMA1_Channel1_IRQHandler(void)
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
   /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA1 channel5 global interrupt.
+*/
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_tim15_ch1_up_trig_com);
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
 }
 
 /**
