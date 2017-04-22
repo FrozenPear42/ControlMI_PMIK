@@ -3,7 +3,7 @@
 
 #include <sched.h>
 
-#define CMP_H 7
+#define CMP_H 5
 #define CMP_L 2
 
 void WS2812_rawWriteBuffer(uint16_t* buffer, uint32_t* data, uint32_t offset, uint32_t size);
