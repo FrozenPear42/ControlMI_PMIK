@@ -51,6 +51,7 @@
 #include <SWO.h>
 #include <WS2812.h>
 #include <usbd_midi_if.h>
+#include <stm32f3xx_hal_tim.h>
 
 /* USER CODE END Includes */
 
@@ -65,9 +66,9 @@ DMA_HandleTypeDef hdma_adc3;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
-TIM_HandleTypeDef htim15;
+TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim20;
-DMA_HandleTypeDef hdma_tim15_ch1_up_trig_com;
+DMA_HandleTypeDef hdma_tim8_ch1;
 
 TSC_HandleTypeDef htsc;
 
@@ -79,7 +80,7 @@ uint16_t adcBuffer[40];
 uint16_t* adcPadBuffer = adcBuffer;
 uint16_t* adcSliderBuffer = adcBuffer + 16;
 
-uint16_t ledBuffer[24];
+uint16_t ledBuffer[64];
 
 /* USER CODE END PV */
 
@@ -108,7 +109,7 @@ static void MX_TSC_Init(void);
 
 static void MX_ADC3_Init(void);
 
-static void MX_TIM15_Init(void);
+static void MX_TIM8_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
@@ -198,7 +199,7 @@ int main(void) {
     MX_ADC2_Init();
     MX_TSC_Init();
     MX_ADC3_Init();
-    MX_TIM15_Init();
+    MX_TIM8_Init();
 
     /* USER CODE BEGIN 2 */
 
@@ -220,12 +221,11 @@ int main(void) {
     HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
     HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
 
-    TIM15->CCR1 = 8;
-    HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
-    //WS2812_writeLed(ledBuffer, 0, 0xFF, 0xFF, 0x00);
-    //HAL_TIM_PWM_Start_DMA(&htim15, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 3);
-    //HAL_DMA_Start_IT(&hdma_tim15_ch1_up_trig_com, (uint32_t) &ledBuffer, (uint32_t) &TIM15->CCR1, 3);
-
+    TIM8->CCR1 = 0;
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+    TIM8->CNT = 8;
+    WS2812_writeLed(ledBuffer, 0, 0x00, 0x00, 0x00);
+    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 64);
 
     /* USER CODE END 2 */
 
@@ -237,6 +237,11 @@ int main(void) {
         /* USER CODE BEGIN 3 */
         if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
+
+            WS2812_writeLed(ledBuffer, 0, 0x00, count, 0x00);
+            TIM8->CNT = 8;
+            HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 64);
+
             itoa(count, buff, 10);
             SSD1306_drawString(&display, 0, 16, buff, 10);
             SWO_PrintString("Count ");
@@ -244,9 +249,9 @@ int main(void) {
             SWO_PrintString("\r\n");
             sendCC(0, 1, (uint8_t) ((count * 127) / 100));
             //USBD_MIDI_SendPacket();
-            HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
-            HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
-            HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
+            //HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
+            //HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
+            //HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
         }
 
     }
@@ -291,7 +296,7 @@ void SystemClock_Config(void) {
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART3
                                          | RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_I2C2
-                                         | RCC_PERIPHCLK_TIM15 | RCC_PERIPHCLK_ADC12
+                                         | RCC_PERIPHCLK_TIM8 | RCC_PERIPHCLK_ADC12
                                          | RCC_PERIPHCLK_ADC34 | RCC_PERIPHCLK_TIM20;
     PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
@@ -299,7 +304,7 @@ void SystemClock_Config(void) {
     PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
     PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
     PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
-    PeriphClkInit.Tim15ClockSelection = RCC_TIM15CLK_HCLK;
+    PeriphClkInit.Tim8ClockSelection = RCC_TIM8CLK_HCLK;
     PeriphClkInit.Tim20ClockSelection = RCC_TIM20CLK_HCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
         Error_Handler();
@@ -665,26 +670,27 @@ static void MX_I2C2_Init(void) {
 
 }
 
-/* TIM15 init function */
-static void MX_TIM15_Init(void) {
+/* TIM8 init function */
+static void MX_TIM8_Init(void) {
 
     TIM_MasterConfigTypeDef sMasterConfig;
     TIM_OC_InitTypeDef sConfigOC;
     TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
-    htim15.Instance = TIM15;
-    htim15.Init.Prescaler = 8;
-    htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim15.Init.Period = 9;
-    htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim15.Init.RepetitionCounter = 0;
-    if (HAL_TIM_PWM_Init(&htim15) != HAL_OK) {
+    htim8.Instance = TIM8;
+    htim8.Init.Prescaler = 8;
+    htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim8.Init.Period = 9;
+    htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim8.Init.RepetitionCounter = 0;
+    if (HAL_TIM_PWM_Init(&htim8) != HAL_OK) {
         Error_Handler();
     }
 
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC1;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig) != HAL_OK) {
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK) {
         Error_Handler();
     }
 
@@ -695,7 +701,7 @@ static void MX_TIM15_Init(void) {
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
+    if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
         Error_Handler();
     }
 
@@ -706,12 +712,15 @@ static void MX_TIM15_Init(void) {
     sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
     sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
     sBreakDeadTimeConfig.BreakFilter = 0;
+    sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
+    sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
+    sBreakDeadTimeConfig.Break2Filter = 0;
     sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-    if (HAL_TIMEx_ConfigBreakDeadTime(&htim15, &sBreakDeadTimeConfig) != HAL_OK) {
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig) != HAL_OK) {
         Error_Handler();
     }
 
-    HAL_TIM_MspPostInit(&htim15);
+    HAL_TIM_MspPostInit(&htim8);
 
 }
 
@@ -804,12 +813,12 @@ static void MX_DMA_Init(void) {
     /* DMA1_Channel1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-    /* DMA1_Channel5_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
     /* DMA2_Channel1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+    /* DMA2_Channel3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
     /* DMA2_Channel5_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);

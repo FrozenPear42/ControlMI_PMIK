@@ -16,7 +16,7 @@ void WS2812_rawWriteBuffer(uint16_t* buffer, uint32_t* data, uint32_t offset, ui
 
 
 void WS2812_writeLed(uint16_t* buffer, uint32_t ledNumber, uint8_t r, uint8_t g, uint8_t b) {
-    WS2812_rawWriteBuffer(buffer, (uint32_t*) &r, ledNumber + 0, 1);
-    WS2812_rawWriteBuffer(buffer, (uint32_t*) &g, ledNumber + 1, 1);
+    WS2812_rawWriteBuffer(buffer, (uint32_t*) &g, ledNumber + 0, 1);
+    WS2812_rawWriteBuffer(buffer, (uint32_t*) &r, ledNumber + 1, 1);
     WS2812_rawWriteBuffer(buffer, (uint32_t*) &b, ledNumber + 2, 1);
 }

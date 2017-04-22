@@ -37,6 +37,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <SWO.h>
+extern TIM_HandleTypeDef htim8;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -47,10 +48,9 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
-extern DMA_HandleTypeDef hdma_tim15_ch1_up_trig_com;
-
+extern DMA_HandleTypeDef hdma_tim8_ch1;
 /******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M4 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /**
@@ -115,20 +115,6 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-* @brief This function handles DMA1 channel5 global interrupt.
-*/
-void DMA1_Channel5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_tim15_ch1_up_trig_com);
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 1 */
-}
-
-/**
 * @brief This function handles ADC1 and ADC2 interrupts.
 */
 void ADC1_2_IRQHandler(void)
@@ -182,6 +168,21 @@ void DMA2_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
 
   /* USER CODE END DMA2_Channel1_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA2 channel3 global interrupt.
+*/
+void DMA2_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 0 */
+    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_1);
+    SWO_PrintString("TIM8 DMA IRQ");
+  /* USER CODE END DMA2_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_tim8_ch1);
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel3_IRQn 1 */
 }
 
 /**

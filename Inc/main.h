@@ -53,8 +53,6 @@
 
 #define BTN_Pin GPIO_PIN_13
 #define BTN_GPIO_Port GPIOC
-#define WS2812_OUT_Pin GPIO_PIN_9
-#define WS2812_OUT_GPIO_Port GPIOF
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOF
 #define LD1_Pin GPIO_PIN_0
