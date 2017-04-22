@@ -65,6 +65,7 @@ DMA_HandleTypeDef hdma_adc3;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim20;
@@ -106,6 +107,8 @@ static void MX_ADC3_Init(void);
 static void MX_TIM8_Init(void);
 
 static void MX_TIM7_Init(void);
+
+static void MX_TIM6_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
@@ -149,6 +152,7 @@ int main(void) {
     MX_ADC3_Init();
     MX_TIM8_Init();
     MX_TIM7_Init();
+    MX_TIM6_Init();
 
     /* USER CODE BEGIN 2 */
 
@@ -166,6 +170,7 @@ int main(void) {
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
     WS2812_start(1);
+    ADC_start();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -174,8 +179,7 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        WS2812_writeLed(0, 0x00, (uint8_t) count, (uint8_t) ADC_PadBuffer[2]);
-
+        WS2812_writeLed(0, ADC_PadBuffer[0], ADC_PadBuffer[1], ADC_PadBuffer[2]);
         if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
             itoa(count, buff, 10);
@@ -598,6 +602,27 @@ static void MX_I2C2_Init(void) {
     /**Configure Analogue filter 
     */
     if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
+        Error_Handler();
+    }
+
+}
+
+/* TIM6 init function */
+static void MX_TIM6_Init(void) {
+
+    TIM_MasterConfigTypeDef sMasterConfig;
+
+    htim6.Instance = TIM6;
+    htim6.Init.Prescaler = 7200;
+    htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim6.Init.Period = 100;
+    if (HAL_TIM_Base_Init(&htim6) != HAL_OK) {
+        Error_Handler();
+    }
+
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK) {
         Error_Handler();
     }
 

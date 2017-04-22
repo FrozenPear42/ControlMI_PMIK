@@ -12,22 +12,20 @@ uint8_t ADC_SliderBuffer[8];
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
+extern TIM_HandleTypeDef htim6;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
     if (hadc->Instance == ADC1) {
-        SWO_PrintString("ADC1 Conversion completed\r\n");
         for (uint8_t i = 0; i < 11; ++i)
             ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 100) / 4096);
     }
 
     if (hadc->Instance == ADC2) {
-        SWO_PrintString("ADC2 Conversion completed\r\n");
         for (uint8_t i = 11; i < 16; ++i)
             ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 100) / 4096);
     }
 
     if (hadc->Instance == ADC3) {
-        SWO_PrintString("ADC3 Conversion completed\r\n");
         for (uint8_t i = 0; i < 8; ++i)
             ADC_SliderBuffer[i] = (uint8_t) (((8 + ADC_rawSliderBuffer[i]) * 100) / 4096);
     }
@@ -39,6 +37,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 //    itoa(adcSliderBuffer[i], buff, 10);
 //    SWO_PrintString(buff);
 //    SWO_PrintString("\r\n");
+}
+
+void ADC_start() {
+    HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void ADC_doConversion() {

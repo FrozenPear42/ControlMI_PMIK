@@ -37,6 +37,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <WS2812.h>
+#include <ADCHandler.h>
 
 extern TIM_HandleTypeDef htim8;
 /* USER CODE END 0 */
@@ -50,6 +51,7 @@ extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 extern DMA_HandleTypeDef hdma_tim8_ch1;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 
 /******************************************************************************/
@@ -150,6 +152,19 @@ void ADC3_IRQHandler(void) {
     /* USER CODE BEGIN ADC3_IRQn 1 */
 
     /* USER CODE END ADC3_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM6 global interrupt and DAC1 underrun interrupt.
+*/
+void TIM6_DAC_IRQHandler(void) {
+    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+    ADC_doConversion();
+    /* USER CODE END TIM6_DAC_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim6);
+    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+    /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /**
