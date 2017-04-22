@@ -46,12 +46,10 @@
 #include "usb_device.h"
 
 /* USER CODE BEGIN Includes */
-#include <stm32f303xe.h>
 #include <SSD1306.h>
 #include <SWO.h>
 #include <WS2812.h>
 #include <usbd_midi_if.h>
-#include <stm32f3xx_hal_tim.h>
 
 /* USER CODE END Includes */
 
@@ -123,53 +121,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
-    char buff[10];
-    if (hadc->Instance == ADC1) {
-        SWO_PrintString("ADC1 Conversion completed\r\n");
-        for (uint8_t i = 0; i < 11; ++i) {
-            adcPadBuffer[i] = (uint16_t) (((8 + adcPadBuffer[i]) * 100) / 4096);
-            SWO_PrintString("Channel ");
-            itoa(i + 1, buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString(": ");
-            itoa(adcPadBuffer[i], buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString("\r\n");
-        }
-//        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
-    }
-
-    if (hadc->Instance == ADC2) {
-        SWO_PrintString("ADC2 Conversion completed\r\n");
-        for (uint8_t i = 11; i < 16; ++i) {
-            adcPadBuffer[i] = (uint16_t) (((8 + adcPadBuffer[i]) * 100) / 4096);
-            SWO_PrintString("Channel ");
-            itoa(i + 1, buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString(": ");
-            itoa(adcPadBuffer[i], buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString("\r\n");
-        }
-//        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
-    }
-
-    if (hadc->Instance == ADC3) {
-        SWO_PrintString("ADC3 Conversion completed\r\n");
-        for (uint8_t i = 0; i < 8; ++i) {
-            adcSliderBuffer[i] = (uint16_t) (((8 + adcSliderBuffer[i]) * 100) / 4096);
-            SWO_PrintString("Slider ");
-            itoa(i + 1, buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString(": ");
-            itoa(adcSliderBuffer[i], buff, 10);
-            SWO_PrintString(buff);
-            SWO_PrintString("\r\n");
-        }
-//        HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 6);
-    }
-}
 
 /* USER CODE END 0 */
 
@@ -220,15 +171,8 @@ int main(void) {
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
-    HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
-    HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
-
-    TIM8->CCR1 = 0;
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
-    TIM8->CNT = 8;
     WS2812_writeLed(ledBuffer, 0, 0x00, 0x00, 0x00);
-    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 64);
+    HAL_TIM_Base_Start_IT(&htim7);
 
     /* USER CODE END 2 */
 
@@ -252,9 +196,6 @@ int main(void) {
             SWO_PrintString("\r\n");
             sendCC(0, 1, (uint8_t) ((count * 127) / 100));
             //USBD_MIDI_SendPacket();
-            HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcPadBuffer, 11);
-            HAL_ADC_Start_DMA(&hadc2, (uint32_t*) (adcPadBuffer + 11), 5);
-            HAL_ADC_Start_DMA(&hadc3, (uint32_t*) (adcSliderBuffer), 8);
         }
 
     }
@@ -708,7 +649,7 @@ static void MX_TIM8_Init(void) {
     htim8.Instance = TIM8;
     htim8.Init.Prescaler = 8;
     htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim8.Init.Period = 18;
+    htim8.Init.Period = 81;
     htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
     if (HAL_TIM_PWM_Init(&htim8) != HAL_OK) {

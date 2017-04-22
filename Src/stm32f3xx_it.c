@@ -37,6 +37,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <SWO.h>
+#include <ADCHandler.h>
 
 extern TIM_HandleTypeDef htim8;
 extern uint16_t ledBuffer[64];
@@ -159,6 +160,7 @@ void ADC3_IRQHandler(void) {
 void TIM7_IRQHandler(void) {
     /* USER CODE BEGIN TIM7_IRQn 0 */
     HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 64);
+//    ADC_doConversion();
     /* USER CODE END TIM7_IRQn 0 */
     HAL_TIM_IRQHandler(&htim7);
     /* USER CODE BEGIN TIM7_IRQn 1 */
