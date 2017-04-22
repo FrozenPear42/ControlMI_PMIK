@@ -50,6 +50,7 @@
 #include <SWO.h>
 #include <WS2812.h>
 #include <usbd_midi_if.h>
+#include <ADCHandler.h>
 
 /* USER CODE END Includes */
 
@@ -75,12 +76,6 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint16_t adcBuffer[40];
-uint16_t* adcPadBuffer = adcBuffer;
-uint16_t* adcSliderBuffer = adcBuffer + 16;
-
-uint16_t ledBuffer[64];
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -170,10 +165,7 @@ int main(void) {
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
-
-    WS2812_writeLed(ledBuffer, 0, 0x00, 0x00, 0x00);
-    HAL_TIM_Base_Start_IT(&htim7);
-
+    WS2812_start(1);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -182,13 +174,10 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        WS2812_writeLed(0, 0x00, (uint8_t) count, (uint8_t) ADC_PadBuffer[2]);
+
         if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
-
-            WS2812_writeLed(ledBuffer, 0, 0x00, (uint8_t) count, (uint8_t) adcPadBuffer[2]);
-            TIM8->CNT = 8;
-            HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) &ledBuffer, 64);
-
             itoa(count, buff, 10);
             SSD1306_drawString(&display, 0, 16, buff, 10);
             SWO_PrintString("Count ");
