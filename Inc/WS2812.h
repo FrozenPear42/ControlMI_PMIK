@@ -6,7 +6,7 @@
 #define CMP_H 12
 #define CMP_L 2
 
-#define WS2812_BUFFSIZE 512
+#define WS2812_BUFFSIZE 1024
 
 extern uint16_t WS2812_ledBuffer[WS2812_BUFFSIZE];
 extern uint16_t WS2812_ledCount;

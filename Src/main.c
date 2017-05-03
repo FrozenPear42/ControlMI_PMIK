@@ -169,8 +169,18 @@ int main(void) {
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
-    WS2812_start(1);
+    WS2812_start(7);
     ADC_start();
+    SWO_PrintString("System ready!");
+
+//    WS2812_writeLed(0, 0x70, 0x60, 0x50);
+//    WS2812_writeLed(1, 0x60, 0x50, 0x40);
+//    WS2812_writeLed(2, 0x50, 0x40, 0x30);
+//    WS2812_writeLed(3, 0x40, 0x30, 0x20);
+//    WS2812_writeLed(4, 0x30, 0x20, 0x10);
+//    WS2812_writeLed(5, 0x20, 0x10, 0x00);
+//    WS2812_writeLed(6, 0x10, 0x00, 0x00);
+
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -179,7 +189,6 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        WS2812_writeLed(0, ADC_PadBuffer[0], ADC_PadBuffer[1], ADC_PadBuffer[2]);
         if (count != TIM20->CNT / 4) {
             count = TIM20->CNT / 4;
             itoa(count, buff, 10);

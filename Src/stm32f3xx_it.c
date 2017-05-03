@@ -172,7 +172,7 @@ void TIM6_DAC_IRQHandler(void) {
 */
 void TIM7_IRQHandler(void) {
     /* USER CODE BEGIN TIM7_IRQn 0 */
-    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) WS2812_ledBuffer, (uint16_t) (48 + 24 * WS2812_ledCount));
+    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (uint32_t*) WS2812_ledBuffer, (uint16_t) (48 * WS2812_ledCount + 1));
 //    ADC_doConversion();
     /* USER CODE END TIM7_IRQn 0 */
     HAL_TIM_IRQHandler(&htim7);
