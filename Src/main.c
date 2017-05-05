@@ -144,7 +144,6 @@ int main(void) {
     MX_ADC1_Init();
     MX_I2C1_Init();
     MX_USART3_UART_Init();
-    MX_USB_DEVICE_Init();
     MX_TIM20_Init();
     MX_I2C2_Init();
     MX_ADC2_Init();
@@ -153,6 +152,7 @@ int main(void) {
     MX_TIM8_Init();
     MX_TIM7_Init();
     MX_TIM6_Init();
+    MX_USB_DEVICE_Init();
 
     /* USER CODE BEGIN 2 */
 
@@ -180,7 +180,7 @@ int main(void) {
 //    WS2812_writeLed(4, 0x30, 0x20, 0x10);
 //    WS2812_writeLed(5, 0x20, 0x10, 0x00);
 //    WS2812_writeLed(6, 0x10, 0x00, 0x00);
-
+//    sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -194,16 +194,14 @@ int main(void) {
         SSD1306_drawString(&display, 0, 16, buff, 10);
 
         if (count != TIM20->CNT / 4) {
-
             if (count < TIM20->CNT / 4) {
                 sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
-                HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
             } else {
                 sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
             }
-
             count = TIM20->CNT / 4;
         }
+
         sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
         sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
         sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);
@@ -664,7 +662,7 @@ static void MX_TIM7_Init(void) {
     htim7.Instance = TIM7;
     htim7.Init.Prescaler = 8;
     htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim7.Init.Period = 1000;
+    htim7.Init.Period = 4000;
     if (HAL_TIM_Base_Init(&htim7) != HAL_OK) {
         Error_Handler();
     }

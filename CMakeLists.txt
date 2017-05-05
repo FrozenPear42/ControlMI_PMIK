@@ -4,7 +4,7 @@ project(ControlMI_PMIK C ASM)
 #####
 # CHANGE HERE
 SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F303ZETx_FLASH.ld)
-SET(COMMON_FLAGS "-O3 -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -fno-builtin -ffunction-sections -fdata-sections -gdwarf-2 -g -fno-common -fmessage-length=0")
+SET(COMMON_FLAGS "-O0 -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -fno-builtin -ffunction-sections -fdata-sections -gdwarf-2 -g -fno-common -fmessage-length=0")
 #####
 
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
