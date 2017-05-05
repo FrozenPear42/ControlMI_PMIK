@@ -122,7 +122,7 @@ static uint8_t  USBD_MIDI_DataOut (USBD_HandleTypeDef *pdev, uint8_t epnum)
     USBD_MIDI_ItfTypeDef *pmidi;
     pmidi = (USBD_MIDI_ItfTypeDef *)(pdev->pUserData);
 
-    USB_Rx_Cnt = ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
+    USB_Rx_Cnt = (uint16_t) ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
 
     pmidi->pIf_MidiRx((uint8_t *)&USB_Rx_Buffer, USB_Rx_Cnt);
 
@@ -133,6 +133,8 @@ static uint8_t  USBD_MIDI_DataOut (USBD_HandleTypeDef *pdev, uint8_t epnum)
 void USBD_MIDI_SendPacket (){
     uint16_t USB_Tx_ptr;
     uint16_t USB_Tx_length;
+
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
     if(USB_Tx_State != 1){
         if (APP_Rx_ptr_out == APP_RX_DATA_SIZE){
@@ -151,13 +153,13 @@ void USBD_MIDI_SendPacket (){
         }
 
         if (APP_Rx_length > MIDI_DATA_IN_PACKET_SIZE){
-            USB_Tx_ptr = APP_Rx_ptr_out;
+            USB_Tx_ptr = (uint16_t) APP_Rx_ptr_out;
             USB_Tx_length = MIDI_DATA_IN_PACKET_SIZE;
             APP_Rx_ptr_out += MIDI_DATA_IN_PACKET_SIZE;
             APP_Rx_length -= MIDI_DATA_IN_PACKET_SIZE;
         }else{
-            USB_Tx_ptr = APP_Rx_ptr_out;
-            USB_Tx_length = APP_Rx_length;
+            USB_Tx_ptr = (uint16_t) APP_Rx_ptr_out;
+            USB_Tx_length = (uint16_t) APP_Rx_length;
             APP_Rx_ptr_out += APP_Rx_length;
             APP_Rx_length = 0;
         }

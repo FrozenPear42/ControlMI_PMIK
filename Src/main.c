@@ -51,7 +51,7 @@
 #include <WS2812.h>
 #include <usbd_midi_if.h>
 #include <ADCHandler.h>
-
+#include <MIDI_Consts.hpp>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -171,7 +171,7 @@ int main(void) {
     HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
     WS2812_start(7);
     ADC_start();
-    SWO_PrintString("System ready!");
+    SWO_PrintString("System ready!\n");
 
 //    WS2812_writeLed(0, 0x70, 0x60, 0x50);
 //    WS2812_writeLed(1, 0x60, 0x50, 0x40);
@@ -189,17 +189,36 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        if (count != TIM20->CNT / 4) {
-            count = TIM20->CNT / 4;
-            itoa(count, buff, 10);
-            SSD1306_drawString(&display, 0, 16, buff, 10);
-            SWO_PrintString("Count ");
-            SWO_PrintString(buff);
-            SWO_PrintString("\r\n");
-            sendCC(0, 1, (uint8_t) ((count * 127) / 100));
-            //USBD_MIDI_SendPacket();
-        }
+        WS2812_writeLed(0, ADC_PadBuffer[0], 0x00, 0x00);
+        itoa(ADC_PadBuffer[0], buff, 10);
+        SSD1306_drawString(&display, 0, 16, buff, 10);
 
+        if (count != TIM20->CNT / 4) {
+
+            if (count < TIM20->CNT / 4) {
+                sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
+                HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            } else {
+                sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
+            }
+
+            count = TIM20->CNT / 4;
+        }
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH4, ADC_SliderBuffer[3]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH5, ADC_SliderBuffer[4]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
+        sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
+
+        if (ADC_PadBuffer[0] > 0)
+            sendNoteOn(1, 32, ADC_PadBuffer[0]);
+        else
+            sendNoteOff(1, 32);
+
+        HAL_Delay(10);
+        USBD_MIDI_SendPacket();
     }
     /* USER CODE END 3 */
 
