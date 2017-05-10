@@ -1,4 +1,13 @@
 /**
+ * ControlMI - Kontroler MIDI
+ * Projekt realizowany w ramach projektu PMIK
+ * @author Wojciech Gruszka, Piotr Żelazko
+ * Przeznaczenie: fizyczne sterowanie interfejsem aplikacji DAW, w szczególności programem Ableton Live s użyciem komend
+ * MIDI CC, interfejs velocity-sensitive macierzy klawiszy MIDI z konfigurowalną skalą
+ */
+
+
+/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
@@ -155,32 +164,25 @@ int main(void) {
     MX_USB_DEVICE_Init();
 
     /* USER CODE BEGIN 2 */
-
     HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_SET);
+
+    HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
+    WS2812_start(7);
+    ADC_start();
 
     display.I2C = &hi2c1;
     display.address = 0x78;
 
     SSD1306_init(&display);
+
     SSD1306_enable(&display, 1);
     SSD1306_clear(&display);
     SSD1306_drawString(&display, 0, 0, "Control MI PMIK", 16);
     SSD1306_drawString(&display, 0, 16, "Test AAA", 10);
     SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
     SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
-    HAL_TIM_Encoder_Start(&htim20, TIM_CHANNEL_ALL);
-    WS2812_start(7);
-    ADC_start();
     SWO_PrintString("System ready!\n");
 
-//    WS2812_writeLed(0, 0x70, 0x60, 0x50);
-//    WS2812_writeLed(1, 0x60, 0x50, 0x40);
-//    WS2812_writeLed(2, 0x50, 0x40, 0x30);
-//    WS2812_writeLed(3, 0x40, 0x30, 0x20);
-//    WS2812_writeLed(4, 0x30, 0x20, 0x10);
-//    WS2812_writeLed(5, 0x20, 0x10, 0x00);
-//    WS2812_writeLed(6, 0x10, 0x00, 0x00);
-//    sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
     /* USER CODE END 2 */
 
     /* Infinite loop */
