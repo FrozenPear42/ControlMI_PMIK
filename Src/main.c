@@ -62,6 +62,7 @@
 #include <ADCHandler.h>
 #include <MIDI_Consts.hpp>
 #include <Menu.h>
+#include <MPU6050.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -173,6 +174,8 @@ int main(void) {
 
     display.I2C = &hi2c1;
     display.address = 0x78;
+
+    MPU6050_Init(&hi2c2);
 
     SSD1306_init(&display);
 
