@@ -52,6 +52,7 @@
 #include <usbd_midi_if.h>
 #include <ADCHandler.h>
 #include <MIDI_Consts.hpp>
+#include <Menu.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -173,6 +174,8 @@ int main(void) {
     ADC_start();
     SWO_PrintString("System ready!\n");
 
+    Menu_init(&display);
+
 //    WS2812_writeLed(0, 0x70, 0x60, 0x50);
 //    WS2812_writeLed(1, 0x60, 0x50, 0x40);
 //    WS2812_writeLed(2, 0x50, 0x40, 0x30);
@@ -180,7 +183,7 @@ int main(void) {
 //    WS2812_writeLed(4, 0x30, 0x20, 0x10);
 //    WS2812_writeLed(5, 0x20, 0x10, 0x00);
 //    WS2812_writeLed(6, 0x10, 0x00, 0x00);
-//    sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
+//    MIDI_sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -189,26 +192,24 @@ int main(void) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-        WS2812_writeLed(0, ADC_PadBuffer[0], 0x00, 0x00);
-        itoa(ADC_PadBuffer[0], buff, 10);
-        SSD1306_drawString(&display, 0, 16, buff, 10);
+        WS2812_writeLed(0, ADC_SliderBuffer[0], 0x00, 0x00);
 
         if (count != TIM20->CNT / 4) {
             if (count < TIM20->CNT / 4) {
-                sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
+                MIDI_sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
             } else {
-                sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
+                MIDI_sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
             }
             count = TIM20->CNT / 4;
         }
 
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH4, ADC_SliderBuffer[3]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH5, ADC_SliderBuffer[4]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
-        sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH4, ADC_SliderBuffer[3]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH5, ADC_SliderBuffer[4]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
+        MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
 
         if (ADC_PadBuffer[0] > 0)
             sendNoteOn(1, 32, ADC_PadBuffer[0]);

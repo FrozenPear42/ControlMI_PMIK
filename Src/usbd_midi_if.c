@@ -55,7 +55,6 @@ static uint16_t MIDI_DataTx(uint8_t* msg, uint16_t length) {
         APP_Rx_ptr_in++;
         i++;
         if( APP_Rx_ptr_in == APP_RX_DATA_SIZE ){
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
             APP_Rx_ptr_in = 0;
         }
     }
@@ -80,7 +79,7 @@ void sendNoteOff(uint8_t ch, uint8_t note) {
     MIDI_DataTx(&buffer[0], 4);
 }
 
-void sendCC(uint8_t ch, uint8_t ccNum, uint8_t value) {
+void MIDI_sendCC(uint8_t ch, uint8_t ccNum, uint8_t value) {
     uint8_t buffer[4];
     buffer[0] = 0x0b;
     buffer[1] = (uint8_t) (0xb0 | ch);
