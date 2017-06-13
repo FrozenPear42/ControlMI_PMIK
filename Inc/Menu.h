@@ -15,8 +15,13 @@ void Menu_right();
 
 void Menu_ok();
 
-void Menu_redraw();
+void Menu_redraw(uint8_t force);
 
 void Menu_changeState(int state);
+
+extern uint8_t Menu_selectedScale;
+extern uint8_t Menu_selectedKey;
+extern uint8_t Menu_selectedOctave;
+
 
 #endif //CONTROLMI_PMIK_MENU_H

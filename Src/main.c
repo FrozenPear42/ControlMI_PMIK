@@ -161,13 +161,8 @@ int main(void)
     MPU6050_Init(&hi2c2);
 
     SSD1306_init(&display);
-
     SSD1306_enable(&display, 1);
-    SSD1306_clear(&display);
-    SSD1306_drawString(&display, 0, 0, "Control MI PMIK", 16);
-    SSD1306_drawString(&display, 0, 16, "Test AAA", 10);
-    SSD1306_drawString(&display, 0, 32, "VEL: 64", 10);
-    SSD1306_drawString(&display, 0, 48, "SUS: 80%", 10);
+
     SWO_PrintString("System ready!\n");
 
     Menu_init(&display);

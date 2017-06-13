@@ -17,26 +17,19 @@ extern TIM_HandleTypeDef htim6;
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
     if (hadc->Instance == ADC1) {
         for (uint8_t i = 0; i < 11; ++i)
-            ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 100) / 4096);
+            ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 127) / 4096);
     }
 
     if (hadc->Instance == ADC2) {
         for (uint8_t i = 11; i < 16; ++i)
-            ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 100) / 4096);
+            ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 127) / 4096);
     }
 
     if (hadc->Instance == ADC3) {
         for (uint8_t i = 0; i < 8; ++i)
-            ADC_SliderBuffer[i] = (uint8_t) (((8 + ADC_rawSliderBuffer[i]) * 100) / 4096);
+            ADC_SliderBuffer[i] = (uint8_t) (((8 + ADC_rawSliderBuffer[i]) * 127) / 4096);
     }
-//    char buff[10];
-//    SWO_PrintString("Slider ");
-//    itoa(i + 1, buff, 10);
-//    SWO_PrintString(buff);
-//    SWO_PrintString(": ");
-//    itoa(adcSliderBuffer[i], buff, 10);
-//    SWO_PrintString(buff);
-//    SWO_PrintString("\r\n");
+
 }
 
 void ADC_start() {
