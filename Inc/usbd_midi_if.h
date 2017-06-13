@@ -4,6 +4,11 @@
 #include <usbd_desc.h>
 #include <usbd_midi.h>
 
+/*!
+ * @file
+ * This file is responsible for sending proper MIDI packets over USB
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
