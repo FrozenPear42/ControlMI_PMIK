@@ -5,6 +5,10 @@
 #ifndef CONTROLMI_PMIK_PADSSTATEHANDLING_H
 #define CONTROLMI_PMIK_PADSSTATEHANDLING_H
 
+/*!
+ * @file
+ * @brief File responsible for pads states and sending proper messages to the PC.
+ */
 
 typedef enum {
 
@@ -15,11 +19,21 @@ typedef enum {
 
 } PAD_STATE_e;
 
-
+/*!
+ * @brief Initializes pads states
+ *
+ * Pads states are initialized to LOW_UNCHANGED state.
+ */
 void Pads_Init();
 
+/*!
+ * Detects states changes.
+ */
 void update_pads_states();
 
+/*!
+ * Sends messages to the PC only in case when a pad changed its state.
+ */
 void send_pads_messages();
 
 

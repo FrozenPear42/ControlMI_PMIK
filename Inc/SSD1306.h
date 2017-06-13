@@ -3,6 +3,12 @@
 
 #define SSD1306_FONTS
 
+/*!
+ * @file
+ * File is SDD1306 driver.
+ * Responsible for all commands being sent to the display.
+ */
+
 #include <stdint.h>
 #include "stm32f3xx_hal.h"
 
