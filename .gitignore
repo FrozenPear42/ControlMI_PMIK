@@ -2,3 +2,6 @@ build
 .cproject
 .mxproject
 .project
+/Documentation/html
+/Documentation/latex
+
