@@ -1,4 +1,13 @@
 /**
+ * ControlMI - Kontroler MIDI
+ * Projekt realizowany w ramach projektu PMIK
+ * @author Wojciech Gruszka, Piotr Żelazko
+ * Przeznaczenie: fizyczne sterowanie interfejsem aplikacji DAW, w szczególności programem Ableton Live s użyciem komend
+ * MIDI CC, interfejs velocity-sensitive macierzy klawiszy MIDI z konfigurowalną skalą
+ */
+
+
+/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
@@ -53,6 +62,7 @@
 #include <ADCHandler.h>
 #include <MIDI_Consts.hpp>
 #include <Menu.h>
+#include <MPU6050.h>
 #include <stm32f303xe.h>
 /* USER CODE END Includes */
 
@@ -99,7 +109,7 @@ static void MX_TIM7_Init(void);
 static void MX_TIM6_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -153,6 +163,8 @@ int main(void)
 
     display.I2C = &hi2c1;
     display.address = 0x78;
+
+    MPU6050_Init(&hi2c2);
 
     SSD1306_init(&display);
 
@@ -859,7 +871,7 @@ static void MX_USART3_UART_Init(void)
 /** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
@@ -961,7 +973,7 @@ void Error_Handler(void)
     /* User can add his own implementation to report the HAL error return state */
     while (1) {
     }
-  /* USER CODE END Error_Handler */ 
+  /* USER CODE END Error_Handler */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -986,10 +998,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
