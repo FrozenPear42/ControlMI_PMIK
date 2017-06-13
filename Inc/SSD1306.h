@@ -44,20 +44,84 @@ typedef struct {
     uint8_t address;
 } SSD1306_Dev;
 
+/**
+ * Inits display of given structure
+ * @param pDisplay
+ */
 void SSD1306_init(SSD1306_Dev* pDisplay);
+/**
+ * Enables display
+ * @param pDisplay display handler
+ * @param pEnable do enable?
+ */
 void SSD1306_enable(SSD1306_Dev* pDisplay, uint8_t pEnable);
+/**
+ * Invert displayed image
+ * @param pDisplay display handler
+ * @param pInvert do invert?
+ */
 void SSD1306_invert(SSD1306_Dev* pDisplay, uint8_t pInvert);
+/**
+ * Send full frame buffer to display
+ * @param pDisplay display handler
+ * @param pBuffer frame buffer
+ */
 void SSD1306_sendFrameBuffer(SSD1306_Dev* pDisplay, uint8_t* pBuffer);
 
+/**
+ * Send command to display
+ * @param pDisplay display handler
+ * @param pCommand command code
+ */
 void SSD1306_sendCommand(SSD1306_Dev* pDisplay, uint8_t pCommand);
 
+/**
+ * Clera screen
+ * @param pDisplay display handler
+ */
 void SSD1306_clear(SSD1306_Dev* pDisplay);
+/**
+ * Draw glyph on display
+ * @param pDisplay display handler
+ * @param pX x coord
+ * @param pY y coord
+ * @param pGlyph glyph array
+ */
 void SSD1306_drawGlyph(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, uint8_t* pGlyph);
+/**
+ * Draw character on display
+ * @param pDisplay display handler
+ * @param pX x coord
+ * @param pY y coord
+ * @param pChar character
+ */
 void SSD1306_drawChar(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char pChar);
+/**
+ * Draw string on display
+ * @param pDisplay display handler
+ * @param pX x coord
+ * @param pY y coord
+ * @param pString string
+ * @param string length
+ */
 void SSD1306_drawString(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
+/**
+ * Draw string right aligned on display
+ * @param pDisplay display handler
+ * @param pX x coord
+ * @param pY y coord
+ * @param pString string
+ * @param string length
+ */
 void SSD1306_drawStringRight(SSD1306_Dev* pDisplay, uint8_t pX, uint8_t pY, char* pString, uint8_t pLen);
 
+/**
+ * Get glyph of char
+ * @param pGlyph character to find glyph
+ * @return
+ */
 uint8_t* getGlyph(char pGlyph);
+
 
 void FrameBuffer_drawPixel(uint8_t* pBuffer, uint8_t pX, uint8_t pY, uint8_t pOn);
 void FrameBuffer_drawVLine(uint8_t* pBuffer, uint8_t pX, uint8_t pY, uint8_t pLength);
