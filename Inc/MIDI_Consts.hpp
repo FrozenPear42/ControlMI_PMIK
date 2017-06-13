@@ -14,6 +14,7 @@
 
 #define CC_NAV_LEFT  40
 #define CC_NAV_RIGHT 41
+#define CC_PLAY 42
 
 #define CC_VALUE_OFF 0
 #define CC_VALUE_ON 127

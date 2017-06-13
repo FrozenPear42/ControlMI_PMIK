@@ -14,6 +14,7 @@ SSD1306_Dev* Menu_display;
 #define MENU_KEY 2
 #define MENU_OCTAVE 3
 #define MENU_CHANNEL_SELECT 4
+#define MENU_VELOCITY 5
 
 uint8_t Menu_state;
 uint8_t Menu_selectedItem;
@@ -29,18 +30,19 @@ uint8_t Menu_selectedKey;
 uint8_t Menu_selectedOctave;
 uint8_t Menu_velocity;
 
-#define MENU_MAIN_ITEMS 4
+#define MENU_MAIN_ITEMS 5
 #define MENU_MAIN_BOX 0
 #define MENU_MAIN_SCALES 1
 #define MENU_MAIN_KEYS 2
 #define MENU_MAIN_OCTAVE 3
-
+#define MENU_MAIN_VELOCITY 4
 
 char* Menu_mainStrings[] = {
         "Box",
         "Scale",
         "Key",
         "Octave",
+        "Velocity"
 };
 
 #define MENU_SCALE_ITEMS 8
@@ -133,6 +135,10 @@ void Menu_left() {
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
             break;
+        case MENU_VELOCITY:
+            if(Menu_velocity > 0) --Menu_velocity;
+            Menu_redraw(0);
+            break;
         default:
             if (Menu_selectedItem != 0)
                 --Menu_selectedItem;
@@ -146,6 +152,10 @@ void Menu_right() {
     switch (Menu_state) {
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
+            break;
+        case MENU_VELOCITY:
+            if(Menu_velocity < 127) ++Menu_velocity;
+            Menu_redraw(0);
             break;
         default:
             if (Menu_selectedItem < Menu_items - 1)
@@ -168,6 +178,8 @@ void Menu_ok() {
                 Menu_changeState(MENU_OCTAVE);
             } else if (Menu_selectedItem == MENU_MAIN_BOX) {
                 Menu_changeState(MENU_CHANNEL_SELECT);
+            } else if (Menu_selectedItem == MENU_MAIN_VELOCITY) {
+                Menu_changeState(MENU_VELOCITY);
             }
             break;
 
@@ -191,6 +203,9 @@ void Menu_ok() {
             Menu_changeState(MENU_MAIN);
             break;
 
+        case MENU_VELOCITY:
+            Menu_changeState(MENU_MAIN);
+            break;
 
         default:
             HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
@@ -224,13 +239,28 @@ void Menu_redraw(uint8_t force) {
             }
             break;
         case MENU_CHANNEL_SELECT:
-            SSD1306_drawString(Menu_display, 0,  0, "CHANNEL SELECT", 16);
+            SSD1306_drawString(Menu_display, 0, 0, "CHANNEL SELECT", 16);
             SSD1306_drawString(Menu_display, 0, 16, "USE ENCODER TO", 16);
             SSD1306_drawString(Menu_display, 0, 32, "MOVE BOX", 16);
             SSD1306_drawString(Menu_display, 0, 48, "OK TO EXIT", 16);
+            break;
+        case MENU_VELOCITY:
+            if (force == 1) {
+                SSD1306_drawString(Menu_display, 0, 0, "SELECT VELOCITY", 16);
+                SSD1306_drawString(Menu_display, 0, 32, "                ", 16);
+                SSD1306_drawString(Menu_display, 0, 48, "                ", 16);
+            }
+            if (Menu_velocity == 0) {
+                SSD1306_drawString(Menu_display, 0, 16, "DYNAMIC", 16);
+            }else {
+                char buff[16];
+                itoa(Menu_velocity, buff, 10);
+                SSD1306_drawString(Menu_display, 0,16, buff, 16);
+            }
 
             break;
         default:
+            SSD1306_clear(Menu_display);
             SSD1306_drawString(Menu_display, 0, 0, "WRONG STATE XD", 16);
             break;
     }
@@ -263,6 +293,9 @@ void Menu_changeState(int state) {
             break;
         case MENU_CHANNEL_SELECT:
             Menu_state = MENU_CHANNEL_SELECT;
+            break;
+        case MENU_VELOCITY:
+            Menu_state = MENU_VELOCITY;
             break;
 
     }
