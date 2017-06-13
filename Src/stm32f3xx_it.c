@@ -38,6 +38,9 @@
 /* USER CODE BEGIN 0 */
 #include <WS2812.h>
 #include <ADCHandler.h>
+#include <Menu.h>
+#include <stm32f303xe.h>
+#include <SWO.h>
 
 extern TIM_HandleTypeDef htim8;
 /* USER CODE END 0 */
@@ -53,6 +56,7 @@ extern ADC_HandleTypeDef hadc3;
 extern DMA_HandleTypeDef hdma_tim8_ch1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim20;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */
@@ -102,6 +106,18 @@ void SysTick_Handler(void) {
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f3xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles EXTI line1 interrupt.
+*/
+void EXTI1_IRQHandler(void) {
+    /* USER CODE BEGIN EXTI1_IRQn 0 */
+    Menu_ok();
+    /* USER CODE END EXTI1_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+    /* USER CODE BEGIN EXTI1_IRQn 1 */
+    /* USER CODE END EXTI1_IRQn 1 */
+}
 
 /**
 * @brief This function handles DMA1 channel1 global interrupt.
@@ -213,12 +229,59 @@ void DMA2_Channel3_IRQHandler(void) {
 */
 void DMA2_Channel5_IRQHandler(void) {
     /* USER CODE BEGIN DMA2_Channel5_IRQn 0 */
-
     /* USER CODE END DMA2_Channel5_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc3);
     /* USER CODE BEGIN DMA2_Channel5_IRQn 1 */
-
     /* USER CODE END DMA2_Channel5_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM20 break interrupt.
+*/
+void TIM20_BRK_IRQHandler(void) {
+    /* USER CODE BEGIN TIM20_BRK_IRQn 0 */
+    /* USER CODE END TIM20_BRK_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim20);
+    /* USER CODE BEGIN TIM20_BRK_IRQn 1 */
+
+    /* USER CODE END TIM20_BRK_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM20 update interrupt.
+*/
+void TIM20_UP_IRQHandler(void) {
+    /* USER CODE BEGIN TIM20_UP_IRQn 0 */
+    /* USER CODE END TIM20_UP_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim20);
+    /* USER COD
+    /* USER CODE END TIM20_UP_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM20 trigger and commutation interrupts.
+*/
+void TIM20_TRG_COM_IRQHandler(void) {
+    /* USER CODE BEGIN TIM20_TRG_COM_IRQn 0 */
+
+    /* USER CODE END TIM20_TRG_COM_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim20);
+    /* USER CODE BEGIN TIM20_TRG_COM_IRQn 1 */
+
+    /* USER CODE END TIM20_TRG_COM_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM20 capture compare interrupt.
+*/
+void TIM20_CC_IRQHandler(void) {
+    /* USER CODE BEGIN TIM20_CC_IRQn 0 */
+    Menu_processEncoder(TIM20->CNT);
+    /* USER CODE END TIM20_CC_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim20);
+    /* USER CODE BEGIN TIM20_CC_IRQn 1 */
+
+    /* USER CODE END TIM20_CC_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

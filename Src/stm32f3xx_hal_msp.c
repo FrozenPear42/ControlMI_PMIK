@@ -598,6 +598,15 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_encoder)
     GPIO_InitStruct.Alternate = GPIO_AF6_TIM20;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(TIM20_BRK_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM20_BRK_IRQn);
+    HAL_NVIC_SetPriority(TIM20_UP_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM20_UP_IRQn);
+    HAL_NVIC_SetPriority(TIM20_TRG_COM_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM20_TRG_COM_IRQn);
+    HAL_NVIC_SetPriority(TIM20_CC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM20_CC_IRQn);
   /* USER CODE BEGIN TIM20_MspInit 1 */
 
   /* USER CODE END TIM20_MspInit 1 */
@@ -704,6 +713,15 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_encoder)
     PE3     ------> TIM20_CH2 
     */
     HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2|GPIO_PIN_3);
+
+    /* Peripheral interrupt DeInit*/
+    HAL_NVIC_DisableIRQ(TIM20_BRK_IRQn);
+
+    HAL_NVIC_DisableIRQ(TIM20_UP_IRQn);
+
+    HAL_NVIC_DisableIRQ(TIM20_TRG_COM_IRQn);
+
+    HAL_NVIC_DisableIRQ(TIM20_CC_IRQn);
 
   }
   /* USER CODE BEGIN TIM20_MspDeInit 1 */

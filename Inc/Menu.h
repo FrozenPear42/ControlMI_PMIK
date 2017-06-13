@@ -5,6 +5,8 @@
 
 void Menu_init(SSD1306_Dev* display);
 
+void Menu_processEncoder(uint32_t value);
+
 void Menu_show();
 
 void Menu_left();

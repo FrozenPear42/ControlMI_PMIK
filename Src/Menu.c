@@ -15,6 +15,8 @@ SSD1306_Dev* Menu_display;
 int Menu_state;
 int Menu_selectedItem;
 
+uint32_t Menu_encoderCount;
+
 #define MENU_MAIN_ITEMS 4
 char* Menu_mainStrings[] = {
         "Scales",
@@ -50,8 +52,26 @@ void Menu_init(SSD1306_Dev* display) {
     Menu_redraw();
 }
 
+void Menu_processEncoder(uint32_t value) {
+    if (Menu_encoderCount != value / 4) {
+        if (Menu_encoderCount < value / 4) {
+            Menu_left();
+        } else {
+            Menu_right();
+        }
+        Menu_encoderCount = value / 4;
+    }
+
+}
+
+
 void Menu_left() {
+
     switch (Menu_state) {
+        case MENU_MAIN:
+            Menu_selectedItem = ((Menu_selectedItem + 1) % MENU_MAIN_ITEMS);
+            Menu_redraw();
+            break;
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
             break;
@@ -64,6 +84,10 @@ void Menu_left() {
 
 void Menu_right() {
     switch (Menu_state) {
+        case MENU_MAIN:
+            Menu_selectedItem = ((Menu_selectedItem + 1) % MENU_MAIN_ITEMS);
+            Menu_redraw();
+            break;
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
             break;
@@ -76,11 +100,20 @@ void Menu_right() {
 
 void Menu_ok() {
     switch (Menu_state) {
+        case MENU_MAIN:
+            if(Menu_selectedItem == 0){}
+            else if(Menu_selectedItem == 1){}
+            else if(Menu_selectedItem == 2){
+                Menu_changeState(MENU_CHANNEL_SELECT);
+            }
+
+
         case MENU_CHANNEL_SELECT:
             Menu_changeState(MENU_MAIN);
             break;
 
         default:
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
             break;
     }
 }
@@ -93,7 +126,8 @@ void Menu_redraw() {
             SSD1306_drawString(Menu_display, 0, 0, "CONTROL MI PMIK", 16);
             SSD1306_drawGlyph(Menu_display, 0, 16, Menu_arrowGlyph);
             for (int i = 0; i < 3; ++i) {
-                SSD1306_drawString(Menu_display, 8, 16 * (i + 1), Menu_mainStrings[(i + Menu_selectedItem) % MENU_MAIN_ITEMS], 16);
+                SSD1306_drawString(Menu_display, 8, 16 * (i + 1),
+                                   Menu_mainStrings[(i + Menu_selectedItem) % MENU_MAIN_ITEMS], 15);
             }
             break;
         default:

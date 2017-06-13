@@ -48,6 +48,7 @@
 void SVC_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void EXTI1_IRQHandler(void);
 void DMA1_Channel1_IRQHandler(void);
 void ADC1_2_IRQHandler(void);
 void USB_LP_CAN_RX0_IRQHandler(void);
@@ -57,6 +58,10 @@ void TIM7_IRQHandler(void);
 void DMA2_Channel1_IRQHandler(void);
 void DMA2_Channel3_IRQHandler(void);
 void DMA2_Channel5_IRQHandler(void);
+void TIM20_BRK_IRQHandler(void);
+void TIM20_UP_IRQHandler(void);
+void TIM20_TRG_COM_IRQHandler(void);
+void TIM20_CC_IRQHandler(void);
 
 #ifdef __cplusplus
 }
