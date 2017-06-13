@@ -57,9 +57,9 @@ void send_pads_messages() {
             note  = note + Pads_mods[Menu_selectedScale][15 - i];
 
             if (PADS_STATES[i] & 0x0F) {
-                sendNoteOn(NOTE_CHANNEL, note, velocity);
+                MIDI_sendNoteOn(NOTE_CHANNEL, note, velocity);
             } else {
-                sendNoteOff(NOTE_CHANNEL, note);
+                MIDI_sendNoteOff(NOTE_CHANNEL, note);
             }
         }
 

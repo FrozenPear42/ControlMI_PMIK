@@ -61,7 +61,7 @@ static uint16_t MIDI_DataTx(uint8_t* msg, uint16_t length) {
     return USBD_OK;
 }
 
-void sendNoteOn(uint8_t ch, uint8_t note, uint8_t vel) {
+void MIDI_sendNoteOn(uint8_t ch, uint8_t note, uint8_t vel) {
     uint8_t buffer[4];
     buffer[0] = 0x09;
     buffer[1] = (uint8_t) (0x90 | ch);
@@ -70,7 +70,7 @@ void sendNoteOn(uint8_t ch, uint8_t note, uint8_t vel) {
     MIDI_DataTx(&buffer[0], 4);
 }
 
-void sendNoteOff(uint8_t ch, uint8_t note) {
+void MIDI_sendNoteOff(uint8_t ch, uint8_t note) {
     uint8_t buffer[4];
     buffer[0] = 0x08;
     buffer[1] = (uint8_t) (0x80 | ch);

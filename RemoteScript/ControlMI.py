@@ -100,7 +100,7 @@ class ControlMI(ControlSurface):
 
         self.mixer.master_strip().set_volume_control(SliderElement(MIDI_CC_TYPE, data_channel, mixer_master_cc))
         self.transport.set_stop_button(ButtonElement(is_momentary, MIDI_CC_TYPE, data_channel, transport_stop_cc))
-        self.transport.set_play_button(ButtonElement(not is_momentary, MIDI_CC_TYPE, data_channel, transport_play_cc))
+        self.transport.set_play_button(ButtonElement(False, MIDI_CC_TYPE, data_channel, transport_play_cc))
         self.transport.set_record_button(ButtonElement(is_momentary, MIDI_CC_TYPE, data_channel, transport_record_cc))
 
     def disconnect(self):

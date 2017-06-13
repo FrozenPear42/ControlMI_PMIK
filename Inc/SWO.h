@@ -10,14 +10,14 @@
 
 /*!
  * @brief Sends single character to SWO
- * @param c
+ * @param c character
  * @return
  */
 uint8_t SWO_PrintChar(char c);
 
 /*!
  * Sends a string to SWO
- * @param s
+ * @param s string
  */
 void SWO_PrintString(const char* s);
 
