@@ -34,7 +34,6 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx.h"
 #include "stm32f3xx_it.h"
-#include "PadsStateHandling.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -46,6 +45,7 @@
 #include <usbd_midi.h>
 #include <usbd_midi_if.h>
 #include <MIDI_Consts.hpp>
+#include <PadsStateHandling.h>
 
 extern TIM_HandleTypeDef htim8;
 /* USER CODE END 0 */
@@ -58,6 +58,7 @@ extern DMA_HandleTypeDef hdma_adc3;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
+extern DMA_HandleTypeDef hdma_i2c2_rx;
 extern DMA_HandleTypeDef hdma_tim8_ch1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
@@ -151,6 +152,19 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 /**
+* @brief This function handles DMA1 channel5 global interrupt.
+*/
+void DMA1_Channel5_IRQHandler(void) {
+    /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+    /* USER CODE END DMA1_Channel5_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_i2c2_rx);
+    /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+    /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
 * @brief This function handles ADC1 and ADC2 interrupts.
 */
 void ADC1_2_IRQHandler(void) {
@@ -174,19 +188,6 @@ void USB_LP_CAN_RX0_IRQHandler(void) {
     /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
 
     /* USER CODE END USB_LP_CAN_RX0_IRQn 1 */
-}
-
-/**
-* @brief This function handles TIM1 break and TIM15 interrupts.
-*/
-void TIM1_BRK_TIM15_IRQHandler(void) {
-    /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-
-    /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim1);
-    /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-
-    /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
 }
 
 /**
@@ -214,32 +215,6 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     USBD_MIDI_SendPacket();
 
     /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
-}
-
-/**
-* @brief This function handles TIM1 trigger, commutation and TIM17 interrupts.
-*/
-void TIM1_TRG_COM_TIM17_IRQHandler(void) {
-    /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
-
-    /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim1);
-    /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 1 */
-
-    /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 1 */
-}
-
-/**
-* @brief This function handles TIM1 capture compare interrupt.
-*/
-void TIM1_CC_IRQHandler(void) {
-    /* USER CODE BEGIN TIM1_CC_IRQn 0 */
-
-    /* USER CODE END TIM1_CC_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim1);
-    /* USER CODE BEGIN TIM1_CC_IRQn 1 */
-
-    /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
 /**

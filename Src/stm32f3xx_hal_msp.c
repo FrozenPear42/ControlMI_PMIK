@@ -50,6 +50,8 @@ extern DMA_HandleTypeDef hdma_adc2;
 
 extern DMA_HandleTypeDef hdma_adc3;
 
+extern DMA_HandleTypeDef hdma_i2c2_rx;
+
 extern DMA_HandleTypeDef hdma_tim8_ch1;
 
 extern void Error_Handler(void);
@@ -455,6 +457,24 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 
     /* Peripheral clock enable */
     __HAL_RCC_I2C2_CLK_ENABLE();
+
+    /* Peripheral DMA init*/
+  
+    hdma_i2c2_rx.Instance = DMA1_Channel5;
+    hdma_i2c2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_i2c2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2c2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2c2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_i2c2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_i2c2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_i2c2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_i2c2_rx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(hi2c,hdmarx,hdma_i2c2_rx);
+
   /* USER CODE BEGIN I2C2_MspInit 1 */
 
   /* USER CODE END I2C2_MspInit 1 */
@@ -499,6 +519,8 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_10);
 
+    /* Peripheral DMA DeInit*/
+    HAL_DMA_DeInit(hi2c->hdmarx);
   /* USER CODE BEGIN I2C2_MspDeInit 1 */
 
   /* USER CODE END I2C2_MspDeInit 1 */
@@ -517,14 +539,8 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock enable */
     __HAL_RCC_TIM1_CLK_ENABLE();
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
     HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-    HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM17_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
-    HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
   /* USER CODE BEGIN TIM1_MspInit 1 */
 
   /* USER CODE END TIM1_MspInit 1 */
@@ -673,13 +689,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     __HAL_RCC_TIM1_CLK_DISABLE();
 
     /* Peripheral interrupt DeInit*/
-    HAL_NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
-
     HAL_NVIC_DisableIRQ(TIM1_UP_TIM16_IRQn);
-
-    HAL_NVIC_DisableIRQ(TIM1_TRG_COM_TIM17_IRQn);
-
-    HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
 
   /* USER CODE BEGIN TIM1_MspDeInit 1 */
 
