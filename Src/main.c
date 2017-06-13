@@ -189,10 +189,13 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-        WS2812_writeLed(6, ADC_SliderBuffer[6], 0x00, 0x00);
-        WS2812_writeLed(0, ADC_PadBuffer[0], 0x00, 0x00);
-        WS2812_writeLed(1, ADC_PadBuffer[1], 0x00, 0x00);
-        WS2812_writeLed(2, ADC_PadBuffer[2], 0x00, 0x00);
+        WS2812_writeLed(0, ADC_PadBuffer[14], 0x00, 0x00);
+        WS2812_writeLed(1, ADC_PadBuffer[15], 0x00, 0x00);
+        WS2812_writeLed(2, ADC_PadBuffer[9], 0x00, 0x00);
+        WS2812_writeLed(3, ADC_PadBuffer[10], 0x00, 0x00);
+        WS2812_writeLed(4, ADC_PadBuffer[11], 0x00, 0x00);
+        WS2812_writeLed(5, ADC_PadBuffer[12], 0x00, 0x00);
+        WS2812_writeLed(6, ADC_PadBuffer[13], 0x00, 0x00);
 
 
         MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
