@@ -55,6 +55,7 @@
 #include <Menu.h>
 #include <MPU6050.h>
 #include <stm32f303xe.h>
+#include "PadsStateHandling.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -106,11 +107,9 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 int main(void)
@@ -166,6 +165,7 @@ int main(void)
     SWO_PrintString("System ready!\n");
 
     Menu_init(&display);
+    Pads_Init();
 
     HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE END 2 */

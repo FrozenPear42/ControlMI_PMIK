@@ -2,9 +2,8 @@
 #include <SWO.h>
 #include "stm32f3xx_hal.h"
 
-
-uint16_t ADC_rawPadBuffer[16];
-uint8_t ADC_PadBuffer[16];
+uint16_t ADC_rawPadBuffer[PADS_NUMBER];
+uint8_t ADC_PadBuffer[PADS_NUMBER];
 
 uint16_t ADC_rawSliderBuffer[8];
 uint8_t ADC_SliderBuffer[8];
@@ -15,13 +14,14 @@ extern ADC_HandleTypeDef hadc3;
 extern TIM_HandleTypeDef htim6;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+
     if (hadc->Instance == ADC1) {
         for (uint8_t i = 0; i < 11; ++i)
             ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 127) / 4096);
     }
 
     if (hadc->Instance == ADC2) {
-        for (uint8_t i = 11; i < 16; ++i)
+        for (uint8_t i = 11; i < PADS_NUMBER; ++i)
             ADC_PadBuffer[i] = (uint8_t) (((8 + ADC_rawPadBuffer[i]) * 127) / 4096);
     }
 

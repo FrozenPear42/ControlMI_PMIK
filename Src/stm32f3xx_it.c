@@ -34,6 +34,7 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx.h"
 #include "stm32f3xx_it.h"
+#include "PadsStateHandling.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -212,10 +213,9 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
 
-    if (ADC_PadBuffer[0] > 0)
-        sendNoteOn(1, 32, ADC_PadBuffer[0]);
-    else
-        sendNoteOff(1, 32);
+    update_pads_states();
+    send_pads_messages();
+
 
     USBD_MIDI_SendPacket();
 

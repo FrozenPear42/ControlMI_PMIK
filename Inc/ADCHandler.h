@@ -3,7 +3,9 @@
 
 #include <inttypes.h>
 
-extern uint8_t ADC_PadBuffer[16];
+#define PADS_NUMBER 16
+
+extern uint8_t ADC_PadBuffer[PADS_NUMBER];
 extern uint8_t ADC_SliderBuffer[8];
 
 void ADC_start();
