@@ -22,6 +22,7 @@ void Menu_changeState(int state);
 extern uint8_t Menu_selectedScale;
 extern uint8_t Menu_selectedKey;
 extern uint8_t Menu_selectedOctave;
+extern uint8_t Menu_velocity;
 
 
 #endif //CONTROLMI_PMIK_MENU_H

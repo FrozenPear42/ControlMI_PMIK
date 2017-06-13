@@ -199,12 +199,6 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     HAL_TIM_IRQHandler(&htim1);
     /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
-    WS2812_writeLed(6, ADC_SliderBuffer[6], 0x00, 0x00);
-    WS2812_writeLed(0, ADC_PadBuffer[0], 0x00, 0x00);
-    WS2812_writeLed(1, ADC_PadBuffer[1], 0x00, 0x00);
-    WS2812_writeLed(2, ADC_PadBuffer[2], 0x00, 0x00);
-
-
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);

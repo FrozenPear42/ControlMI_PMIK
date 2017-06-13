@@ -27,7 +27,7 @@ uint32_t Menu_encoderCount;
 uint8_t Menu_selectedScale;
 uint8_t Menu_selectedKey;
 uint8_t Menu_selectedOctave;
-
+uint8_t Menu_velocity;
 
 #define MENU_MAIN_ITEMS 4
 #define MENU_MAIN_BOX 0
@@ -105,6 +105,11 @@ static uint8_t Menu_arrowGlyph[16] = {
 void Menu_init(SSD1306_Dev* display) {
     Menu_display = display;
     Menu_encoderCount = 0;
+    Menu_velocity = 0;
+    Menu_selectedOctave = 4;
+    Menu_selectedScale = 0;
+    Menu_selectedKey = 0;
+
     Menu_changeState(MENU_MAIN);
     Menu_redraw(1);
 }
