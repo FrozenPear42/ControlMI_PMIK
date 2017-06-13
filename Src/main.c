@@ -1,4 +1,15 @@
 /**
+ * @brief ControlMI - Kontroler MIDI
+ * Projekt realizowany w ramach projektu PMIK
+ *
+ * @author Wojciech Gruszka, Piotr Żelazko
+ *
+ * Przeznaczenie: fizyczne sterowanie interfejsem aplikacji DAW, w szczególności programem Ableton Live s użyciem komend
+ * MIDI CC, interfejs velocity-sensitive macierzy klawiszy MIDI z konfigurowalną skalą
+ */
+/**
+
+/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
