@@ -36,11 +36,15 @@
 #include "stm32f3xx_it.h"
 
 /* USER CODE BEGIN 0 */
+
 #include <WS2812.h>
 #include <ADCHandler.h>
 #include <Menu.h>
 #include <stm32f303xe.h>
 #include <SWO.h>
+#include <usbd_midi.h>
+#include <usbd_midi_if.h>
+#include <MIDI_Consts.hpp>
 
 extern TIM_HandleTypeDef htim8;
 /* USER CODE END 0 */
@@ -180,6 +184,27 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
     HAL_TIM_IRQHandler(&htim1);
     /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+
+    WS2812_writeLed(6, ADC_SliderBuffer[6], 0x00, 0x00);
+    WS2812_writeLed(0, ADC_PadBuffer[0], 0x00, 0x00);
+    WS2812_writeLed(1, ADC_PadBuffer[1], 0x00, 0x00);
+    WS2812_writeLed(2, ADC_PadBuffer[2], 0x00, 0x00);
+
+
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH1, ADC_SliderBuffer[0]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH2, ADC_SliderBuffer[1]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH3, ADC_SliderBuffer[2]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH4, ADC_SliderBuffer[3]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH5, ADC_SliderBuffer[4]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
+    MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
+
+    if (ADC_PadBuffer[0] > 0)
+        sendNoteOn(1, 32, ADC_PadBuffer[0]);
+    else
+        sendNoteOff(1, 32);
+
+    USBD_MIDI_SendPacket();
 
     /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
 }
