@@ -215,13 +215,15 @@ void Menu_ok() {
 
 
 void Menu_redraw(uint8_t force) {
+    char buffer[16];
 
     switch (Menu_state) {
         case MENU_MAIN:
         case MENU_SCALE:
         case MENU_KEY:
         case MENU_OCTAVE:
-            SSD1306_drawString(Menu_display, 0, 0, "CONTROL MI PMIK", 16);
+            sprintf(buffer, "%-2s %-1d %s", Menu_keyStrings[Menu_selectedKey], Menu_selectedOctave, Menu_scaleStrings[Menu_selectedScale]);
+            SSD1306_drawString(Menu_display, 0, 0, buffer, 16);
 
             SSD1306_drawChar(Menu_display, 0, 16, ' ');
             SSD1306_drawChar(Menu_display, 0, 32, ' ');
