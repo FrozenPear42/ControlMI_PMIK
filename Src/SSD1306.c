@@ -1,6 +1,25 @@
 #include "SSD1306.h"
 
 #ifdef SSD1306_FONTS
+const uint8_t SSD_1306_hash[16] = {
+        0x00, /* 00000000 */
+        0x00, /* 00000000 */
+        0x00, /* 00000000 */
+        0x6c, /* 01101100 */
+        0x6c, /* 01101100 */
+        0xfe, /* 11111110 */
+        0x6c, /* 01101100 */
+        0x6c, /* 01101100 */
+        0x6c, /* 01101100 */
+        0xfe, /* 11111110 */
+        0x6c, /* 01101100 */
+        0x6c, /* 01101100 */
+        0x00, /* 00000000 */
+        0x00, /* 00000000 */
+        0x00, /* 00000000 */
+        0x00, /* 00000000 */
+};
+
 const uint8_t SSD_1306_blank[16] = {
     0x00, /* 00000000 */
     0x00, /* 00000000 */
@@ -884,6 +903,8 @@ uint8_t* getGlyph(char pGlyph) {
         return (uint8_t*) SSD_1306_colon;
     else if( pGlyph == '%' )
         return (uint8_t*) SSD_1306_percent;
+    else if( pGlyph == '#' )
+        return (uint8_t*) SSD_1306_hash;
     else
         return (uint8_t*) SSD_1306_blank;
 }

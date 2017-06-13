@@ -5,26 +5,82 @@
 #include <SSD1306.h>
 #include <usbd_midi_if.h>
 #include <MIDI_Consts.hpp>
+#include <SWO.h>
 
 SSD1306_Dev* Menu_display;
 
 #define MENU_MAIN 0
 #define MENU_SCALE 1
-#define MENU_CHANNEL_SELECT 2
+#define MENU_KEY 2
+#define MENU_OCTAVE 3
+#define MENU_CHANNEL_SELECT 4
 
-int Menu_state;
-int Menu_selectedItem;
+uint8_t Menu_state;
+uint8_t Menu_selectedItem;
+uint8_t Menu_page;
+
+char** Menu_strings;
+uint8_t Menu_items;
 
 uint32_t Menu_encoderCount;
 
+uint8_t Menu_selectedScale;
+uint8_t Menu_selectedKey;
+uint8_t Menu_selectedOctave;
+
+
 #define MENU_MAIN_ITEMS 4
+#define MENU_MAIN_BOX 0
+#define MENU_MAIN_SCALES 1
+#define MENU_MAIN_KEYS 2
+#define MENU_MAIN_OCTAVE 3
+
+
 char* Menu_mainStrings[] = {
-        "Scales",
-        "Modulation",
-        "Channels",
-        "Params"
+        "Box",
+        "Scale",
+        "Key",
+        "Octave",
 };
 
+#define MENU_SCALE_ITEMS 8
+char* Menu_scaleStrings[] = {
+        "Chromatic",
+        "Ionian",
+        "Dorian",
+        "Phyrigian",
+        "Lydian",
+        "Mixolydian",
+        "Aeolian",
+        "Locrian"
+};
+
+#define MENU_KEY_ITEMS 12
+char* Menu_keyStrings[] = {
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B"
+};
+
+#define MENU_OCTAVE_ITEMS 7
+char* Menu_octaveStrings[] = {
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+};
 
 static uint8_t Menu_arrowGlyph[16] = {
         0x00, /* 00000000 */
@@ -48,8 +104,9 @@ static uint8_t Menu_arrowGlyph[16] = {
 
 void Menu_init(SSD1306_Dev* display) {
     Menu_display = display;
-    Menu_state = MENU_MAIN;
-    Menu_redraw();
+    Menu_encoderCount = 0;
+    Menu_changeState(MENU_MAIN);
+    Menu_redraw(1);
 }
 
 void Menu_processEncoder(uint32_t value) {
@@ -68,15 +125,13 @@ void Menu_processEncoder(uint32_t value) {
 void Menu_left() {
 
     switch (Menu_state) {
-        case MENU_MAIN:
-            Menu_selectedItem = ((Menu_selectedItem + 1) % MENU_MAIN_ITEMS);
-            Menu_redraw();
-            break;
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_LEFT, CC_VALUE_ON);
             break;
-
         default:
+            if (Menu_selectedItem != 0)
+                --Menu_selectedItem;
+            Menu_redraw(0);
             break;
     }
 }
@@ -84,16 +139,15 @@ void Menu_left() {
 
 void Menu_right() {
     switch (Menu_state) {
-        case MENU_MAIN:
-            Menu_selectedItem = ((Menu_selectedItem + 1) % MENU_MAIN_ITEMS);
-            Menu_redraw();
-            break;
         case MENU_CHANNEL_SELECT:
             MIDI_sendCC(DATA_CHANNEL, CC_NAV_RIGHT, CC_VALUE_ON);
             break;
-
         default:
+            if (Menu_selectedItem < Menu_items - 1)
+                ++Menu_selectedItem;
+            Menu_redraw(0);
             break;
+
     }
 }
 
@@ -101,16 +155,37 @@ void Menu_right() {
 void Menu_ok() {
     switch (Menu_state) {
         case MENU_MAIN:
-            if(Menu_selectedItem == 0){}
-            else if(Menu_selectedItem == 1){}
-            else if(Menu_selectedItem == 2){
+            if (Menu_selectedItem == MENU_MAIN_SCALES) {
+                Menu_changeState(MENU_SCALE);
+            } else if (Menu_selectedItem == MENU_MAIN_KEYS) {
+                Menu_changeState(MENU_KEY);
+            } else if (Menu_selectedItem == MENU_MAIN_OCTAVE) {
+                Menu_changeState(MENU_OCTAVE);
+            } else if (Menu_selectedItem == MENU_MAIN_BOX) {
                 Menu_changeState(MENU_CHANNEL_SELECT);
             }
-
+            break;
 
         case MENU_CHANNEL_SELECT:
             Menu_changeState(MENU_MAIN);
             break;
+
+        case MENU_SCALE:
+            Menu_selectedScale = Menu_selectedItem;
+            Menu_changeState(MENU_MAIN);
+            break;
+
+        case MENU_KEY:
+            Menu_selectedKey = Menu_selectedItem;
+            Menu_changeState(MENU_MAIN);
+            break;
+
+
+        case MENU_OCTAVE:
+            Menu_selectedOctave = Menu_selectedItem;
+            Menu_changeState(MENU_MAIN);
+            break;
+
 
         default:
             HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
@@ -119,16 +194,36 @@ void Menu_ok() {
 }
 
 
-void Menu_redraw() {
-    SSD1306_clear(Menu_display);
+void Menu_redraw(uint8_t force) {
+
     switch (Menu_state) {
         case MENU_MAIN:
+        case MENU_SCALE:
+        case MENU_KEY:
+        case MENU_OCTAVE:
             SSD1306_drawString(Menu_display, 0, 0, "CONTROL MI PMIK", 16);
-            SSD1306_drawGlyph(Menu_display, 0, 16, Menu_arrowGlyph);
-            for (int i = 0; i < 3; ++i) {
-                SSD1306_drawString(Menu_display, 8, 16 * (i + 1),
-                                   Menu_mainStrings[(i + Menu_selectedItem) % MENU_MAIN_ITEMS], 15);
+
+            SSD1306_drawChar(Menu_display, 0, 16, ' ');
+            SSD1306_drawChar(Menu_display, 0, 32, ' ');
+            SSD1306_drawChar(Menu_display, 0, 48, ' ');
+            SSD1306_drawGlyph(Menu_display, 0, 16 * (1 + Menu_selectedItem % 3), Menu_arrowGlyph);
+
+            if (Menu_page != Menu_selectedItem / 3 || force == 1) {
+                Menu_page = Menu_selectedItem / 3;
+                for (int i = 0; i < 3; ++i) {
+                    if (Menu_page * 3 + i < Menu_items)
+                        SSD1306_drawString(Menu_display, 8, 16 * (i + 1), Menu_strings[Menu_page * 3 + i], 15);
+                    else
+                        SSD1306_drawString(Menu_display, 8, 16 * (i + 1), "               ", 15);
+                }
             }
+            break;
+        case MENU_CHANNEL_SELECT:
+            SSD1306_drawString(Menu_display, 0,  0, "CHANNEL SELECT", 16);
+            SSD1306_drawString(Menu_display, 0, 16, "USE ENCODER TO", 16);
+            SSD1306_drawString(Menu_display, 0, 32, "MOVE BOX", 16);
+            SSD1306_drawString(Menu_display, 0, 48, "OK TO EXIT", 16);
+
             break;
         default:
             SSD1306_drawString(Menu_display, 0, 0, "WRONG STATE XD", 16);
@@ -138,9 +233,33 @@ void Menu_redraw() {
 }
 
 void Menu_changeState(int state) {
+    Menu_page = 0;
+    Menu_selectedItem = 0;
     switch (state) {
         case MENU_MAIN:
             Menu_state = MENU_MAIN;
+            Menu_items = MENU_MAIN_ITEMS;
+            Menu_strings = Menu_mainStrings;
             break;
+        case MENU_SCALE:
+            Menu_state = MENU_SCALE;
+            Menu_items = MENU_SCALE_ITEMS;
+            Menu_strings = Menu_scaleStrings;
+            break;
+        case MENU_KEY:
+            Menu_state = MENU_KEY;
+            Menu_items = MENU_KEY_ITEMS;
+            Menu_strings = Menu_keyStrings;
+            break;
+        case MENU_OCTAVE:
+            Menu_state = MENU_OCTAVE;
+            Menu_items = MENU_OCTAVE_ITEMS;
+            Menu_strings = Menu_octaveStrings;
+            break;
+        case MENU_CHANNEL_SELECT:
+            Menu_state = MENU_CHANNEL_SELECT;
+            break;
+
     }
+    Menu_redraw(1);
 }
