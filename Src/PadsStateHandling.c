@@ -8,6 +8,9 @@
 #include "ADCHandler.h"
 #include "PadsStateHandling.h"
 
+uint8_t Pads_x;
+uint8_t Pads_y;
+
 uint8_t PADS_STATES[PADS_NUMBER];
 
 uint8_t Pads_mods[][16] = {
@@ -63,6 +66,11 @@ void send_pads_messages() {
             }
         }
 
+    }
+
+    if(Menu_XY != 0) {
+        MIDI_sendCC(NOTE_CHANNEL, CC_MODULATION, Pads_x);
+        MIDI_sendCC(NOTE_CHANNEL, CC_PAN, Pads_y);
     }
 
 }

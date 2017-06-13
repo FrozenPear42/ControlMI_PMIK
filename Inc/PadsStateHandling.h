@@ -19,6 +19,11 @@ typedef enum {
 
 } PAD_STATE_e;
 
+
+extern uint8_t Pads_x;
+extern uint8_t Pads_y;
+
+
 /*!
  * @brief Initializes pads states
  *

@@ -15,6 +15,7 @@ SSD1306_Dev* Menu_display;
 #define MENU_OCTAVE 3
 #define MENU_CHANNEL_SELECT 4
 #define MENU_VELOCITY 5
+#define MENU_XY 6
 
 uint8_t Menu_state;
 uint8_t Menu_selectedItem;
@@ -29,20 +30,23 @@ uint8_t Menu_selectedScale;
 uint8_t Menu_selectedKey;
 uint8_t Menu_selectedOctave;
 uint8_t Menu_velocity;
+uint8_t Menu_XY;
 
-#define MENU_MAIN_ITEMS 5
+#define MENU_MAIN_ITEMS 6
 #define MENU_MAIN_BOX 0
 #define MENU_MAIN_SCALES 1
 #define MENU_MAIN_KEYS 2
 #define MENU_MAIN_OCTAVE 3
 #define MENU_MAIN_VELOCITY 4
+#define MENU_MAIN_XY 5
 
 char* Menu_mainStrings[] = {
         "Box",
         "Scale",
         "Key",
         "Octave",
-        "Velocity"
+        "Velocity",
+        "XY"
 };
 
 #define MENU_SCALE_ITEMS 8
@@ -84,6 +88,13 @@ char* Menu_octaveStrings[] = {
         "6"
 };
 
+#define MENU_XY_ITEMS 2
+char* Menu_xyStrings[] = {
+        "DISABLE XY",
+        "ENABLE XY",
+};
+
+
 static uint8_t Menu_arrowGlyph[16] = {
         0x00, /* 00000000 */
         0x40, /* 01000000 */
@@ -111,7 +122,7 @@ void Menu_init(SSD1306_Dev* display) {
     Menu_selectedOctave = 4;
     Menu_selectedScale = 0;
     Menu_selectedKey = 0;
-
+    Menu_XY = 0;
     Menu_changeState(MENU_MAIN);
     Menu_redraw(1);
 }
@@ -176,6 +187,8 @@ void Menu_ok() {
                 Menu_changeState(MENU_KEY);
             } else if (Menu_selectedItem == MENU_MAIN_OCTAVE) {
                 Menu_changeState(MENU_OCTAVE);
+            } else if (Menu_selectedItem == MENU_MAIN_XY) {
+                Menu_changeState(MENU_XY);
             } else if (Menu_selectedItem == MENU_MAIN_BOX) {
                 Menu_changeState(MENU_CHANNEL_SELECT);
             } else if (Menu_selectedItem == MENU_MAIN_VELOCITY) {
@@ -203,6 +216,11 @@ void Menu_ok() {
             Menu_changeState(MENU_MAIN);
             break;
 
+        case MENU_XY:
+            Menu_XY = Menu_selectedItem;
+            Menu_changeState(MENU_MAIN);
+            break;
+
         case MENU_VELOCITY:
             Menu_changeState(MENU_MAIN);
             break;
@@ -222,8 +240,11 @@ void Menu_redraw(uint8_t force) {
         case MENU_SCALE:
         case MENU_KEY:
         case MENU_OCTAVE:
+        case MENU_XY:
             sprintf(buffer, "%-2s %-1d %s", Menu_keyStrings[Menu_selectedKey], Menu_selectedOctave, Menu_scaleStrings[Menu_selectedScale]);
             SSD1306_drawString(Menu_display, 0, 0, buffer, 16);
+            if(Menu_XY != 0)
+                SSD1306_drawString(Menu_display, 120, 0, "X", 1);
 
             SSD1306_drawChar(Menu_display, 0, 16, ' ');
             SSD1306_drawChar(Menu_display, 0, 32, ' ');
@@ -292,6 +313,11 @@ void Menu_changeState(int state) {
             Menu_state = MENU_OCTAVE;
             Menu_items = MENU_OCTAVE_ITEMS;
             Menu_strings = Menu_octaveStrings;
+            break;
+        case MENU_XY:
+            Menu_state = MENU_XY;
+            Menu_items = MENU_XY_ITEMS;
+            Menu_strings = Menu_xyStrings;
             break;
         case MENU_CHANNEL_SELECT:
             Menu_state = MENU_CHANNEL_SELECT;

@@ -104,7 +104,7 @@ static void MX_TIM6_Init(void);
 static void MX_TIM1_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -117,8 +117,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-    uint32_t count = 0;
-    char buff[10];
     SSD1306_Dev display;
   /* USER CODE END 1 */
 
@@ -177,7 +175,9 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+        Pads_x = MPU6050_Accel_Get_X();
+        Pads_y = MPU6050_Accel_Get_Y();
+        HAL_Delay(100);
     }
   /* USER CODE END 3 */
 
@@ -871,7 +871,7 @@ static void MX_USART3_UART_Init(void)
 /** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
@@ -985,7 +985,7 @@ void Error_Handler(void)
     /* User can add his own implementation to report the HAL error return state */
     while (1) {
     }
-  /* USER CODE END Error_Handler */ 
+  /* USER CODE END Error_Handler */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -1010,10 +1010,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -55,6 +55,6 @@ extern uint8_t Menu_selectedScale;
 extern uint8_t Menu_selectedKey;
 extern uint8_t Menu_selectedOctave;
 extern uint8_t Menu_velocity;
-
+extern uint8_t Menu_XY;
 
 #endif //CONTROLMI_PMIK_MENU_H

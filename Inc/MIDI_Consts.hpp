@@ -12,6 +12,9 @@
 #define CC_SLIDER_CH6 5
 #define CC_SLIDER_MAIN 6
 
+#define CC_MODULATION 1
+#define CC_PAN 8
+
 #define CC_NAV_LEFT  40
 #define CC_NAV_RIGHT 41
 #define CC_PLAY 33

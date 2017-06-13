@@ -103,6 +103,8 @@ class ControlMI(ControlSurface):
         self.transport.set_play_button(ButtonElement(False, MIDI_CC_TYPE, data_channel, transport_play_cc))
         self.transport.set_record_button(ButtonElement(is_momentary, MIDI_CC_TYPE, data_channel, transport_record_cc))
 
+        print self.session.tracks_to_use()
+
     def disconnect(self):
         """clean things up on disconnect"""
         self.log("--------------= ControlMI log closed =--------------")

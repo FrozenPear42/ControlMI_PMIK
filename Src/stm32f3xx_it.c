@@ -211,7 +211,6 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     update_pads_states();
     send_pads_messages();
 
-
     USBD_MIDI_SendPacket();
 
     /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
