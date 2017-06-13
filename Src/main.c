@@ -1,13 +1,4 @@
 /**
- * ControlMI - Kontroler MIDI
- * Projekt realizowany w ramach projektu PMIK
- * @author Wojciech Gruszka, Piotr Żelazko
- * Przeznaczenie: fizyczne sterowanie interfejsem aplikacji DAW, w szczególności programem Ableton Live s użyciem komend
- * MIDI CC, interfejs velocity-sensitive macierzy klawiszy MIDI z konfigurowalną skalą
- */
-
-
-/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
@@ -77,6 +68,7 @@ DMA_HandleTypeDef hdma_adc3;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim8;
@@ -107,9 +99,10 @@ static void MX_ADC3_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM1_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-
+                                
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -152,6 +145,7 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM7_Init();
   MX_TIM6_Init();
+  MX_TIM1_Init();
 
   /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_SET);
@@ -259,14 +253,16 @@ void SystemClock_Config(void)
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART3
                               |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C2
-                              |RCC_PERIPHCLK_TIM8|RCC_PERIPHCLK_ADC12
-                              |RCC_PERIPHCLK_ADC34|RCC_PERIPHCLK_TIM20;
+                              |RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_TIM8
+                              |RCC_PERIPHCLK_ADC12|RCC_PERIPHCLK_ADC34
+                              |RCC_PERIPHCLK_TIM20;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
   PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
   PeriphClkInit.Tim8ClockSelection = RCC_TIM8CLK_HCLK;
   PeriphClkInit.Tim20ClockSelection = RCC_TIM20CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -672,6 +668,40 @@ static void MX_I2C2_Init(void)
 
 }
 
+/* TIM1 init function */
+static void MX_TIM1_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 1125;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_DOWN;
+  htim1.Init.Period = 500;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 /* TIM6 init function */
 static void MX_TIM6_Init(void)
 {
@@ -871,7 +901,7 @@ static void MX_USART3_UART_Init(void)
 /** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void)
+static void MX_DMA_Init(void) 
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
@@ -973,7 +1003,7 @@ void Error_Handler(void)
     /* User can add his own implementation to report the HAL error return state */
     while (1) {
     }
-  /* USER CODE END Error_Handler */
+  /* USER CODE END Error_Handler */ 
 }
 
 #ifdef USE_FULL_ASSERT
@@ -998,10 +1028,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */
+  */ 
 
 /**
   * @}
-*/
+*/ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
