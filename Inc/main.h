@@ -57,6 +57,8 @@
 #define MCO_GPIO_Port GPIOF
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define UNI_BUTTON_Pin GPIO_PIN_0
+#define UNI_BUTTON_GPIO_Port GPIOG
 #define ENC_BUTTON_Pin GPIO_PIN_1
 #define ENC_BUTTON_GPIO_Port GPIOG
 #define LD3_Pin GPIO_PIN_14

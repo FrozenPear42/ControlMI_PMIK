@@ -1,15 +1,4 @@
 /**
- * @brief ControlMI - Kontroler MIDI
- * Projekt realizowany w ramach projektu PMIK
- *
- * @author Wojciech Gruszka, Piotr Żelazko
- *
- * Przeznaczenie: fizyczne sterowanie interfejsem aplikacji DAW, w szczególności programem Ableton Live s użyciem komend
- * MIDI CC, interfejs velocity-sensitive macierzy klawiszy MIDI z konfigurowalną skalą
- */
-/**
-
-/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
@@ -177,14 +166,6 @@ int main(void)
     SWO_PrintString("System ready!\n");
 
     Menu_init(&display);
-
-//    WS2812_writeLed(0, 0x70, 0x60, 0x50);
-//    WS2812_writeLed(1, 0x60, 0x50, 0x40);
-//    WS2812_writeLed(2, 0x50, 0x40, 0x30);
-//    WS2812_writeLed(3, 0x40, 0x30, 0x20);
-//    WS2812_writeLed(4, 0x30, 0x20, 0x10);
-//    WS2812_writeLed(5, 0x20, 0x10, 0x00);
-//    WS2812_writeLed(6, 0x10, 0x00, 0x00);
 
     HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE END 2 */
@@ -945,6 +926,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : UNI_BUTTON_Pin */
+  GPIO_InitStruct.Pin = UNI_BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(UNI_BUTTON_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : ENC_BUTTON_Pin */
   GPIO_InitStruct.Pin = ENC_BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
@@ -971,6 +958,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
