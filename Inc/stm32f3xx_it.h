@@ -54,6 +54,10 @@ void DMA1_Channel1_IRQHandler(void);
 void ADC1_2_IRQHandler(void);
 void USB_LP_CAN_RX0_IRQHandler(void);
 void TIM1_BRK_TIM15_IRQHandler(void);
+
+/*!
+ * @brief This interrupt is called with frequency of 128Hz and is responsible for whole the work.
+ */
 void TIM1_UP_TIM16_IRQHandler(void);
 void TIM1_TRG_COM_TIM17_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);

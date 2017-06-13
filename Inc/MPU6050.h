@@ -1,7 +1,14 @@
 #ifndef PLAYGROUND_MPU6050_H
 #define PLAYGROUND_MPU6050_H
 
+/*!
+ * @file
+ * @brief This file is responsible for MPU6050.
+ *
+ */
+
 #include "stm32f3xx_hal.h"
+
 
 #define MPU6050_DEVICE_ADDRESS  0xD0
 
@@ -27,10 +34,32 @@ enum MPU6050_ACCEL_CONFIG_Values {
 
 /* FUNCTIONS */
 
+/*!
+ * @brief Initializes MPU6050
+ *
+ * Sets up proper I2C and then configures device so it works in demanded way.
+ */
 void MPU6050_Init(I2C_HandleTypeDef*);
 
+/*!
+ * Returns accelerometer X-axis value.
+ * Values are normalized so they are from 0 to 127
+ * @return normalized X-axis value
+ */
 uint8_t MPU6050_Accel_Get_X ();
+
+/*!
+ * Returns accelerometer Y-axis value.
+ * Values are normalized so they are from 0 to 127
+ * @return normalized Y-axis value
+ */
 uint8_t MPU6050_Accel_Get_Y ();
+
+/*!
+ * Returns accelerometer Y-axis value.
+ * Values are normalized so they are from 0 to 127
+ * @return normalized Y-axis value
+ */
 uint8_t MPU6050_Accel_Get_Z ();
 
 

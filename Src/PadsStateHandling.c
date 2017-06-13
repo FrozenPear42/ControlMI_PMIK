@@ -61,7 +61,6 @@ void send_pads_messages() {
             } else {
                 sendNoteOff(NOTE_CHANNEL, note);
             }
-//            PADS_STATES[i] & 0x0F ? sendNoteOn () : sendNoteOff();
         }
 
     }
