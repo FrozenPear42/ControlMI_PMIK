@@ -29,7 +29,7 @@ void WS2812_start(uint16_t ledCount);
  * @param offset
  * @param size
  */
-void WS2812_rawWriteBuffer(uint32_t* data, uint32_t offset, uint32_t size);
+void WS2812_rawWriteBuffer(uint32_t *data, uint32_t offset, uint32_t size);
 
 
 /*!
