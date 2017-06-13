@@ -3,7 +3,7 @@
 
 /*!
  * @file
- * File responsible for writing debug data to SWO
+ * @brief File responsible for writing debug data to SWO
  */
 
 #include <stdint.h>

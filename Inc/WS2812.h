@@ -3,7 +3,7 @@
 
 /*!
  * @file
- * File responsible for communicating with WS2812 LED's.
+ * @brief File responsible for communicating with WS2812 LED's.
  */
 
 #include <sched.h>
