@@ -99,11 +99,15 @@ class ControlMI(ControlSurface):
             strip._invert_mute_feedback = True
 
         self.mixer.master_strip().set_volume_control(SliderElement(MIDI_CC_TYPE, data_channel, mixer_master_cc))
-        self.transport.set_stop_button(ButtonElement(is_momentary, MIDI_CC_TYPE, data_channel, transport_stop_cc))
+        self.transport.set_stop_button(ButtonElement(False, MIDI_CC_TYPE, data_channel, transport_stop_cc))
         self.transport.set_play_button(ButtonElement(False, MIDI_CC_TYPE, data_channel, transport_play_cc))
-        self.transport.set_record_button(ButtonElement(is_momentary, MIDI_CC_TYPE, data_channel, transport_record_cc))
+        self.transport.set_record_button(ButtonElement(False, MIDI_CC_TYPE, data_channel, transport_record_cc))
 
-        print self.session.tracks_to_use()
+        self.log("color: "+ str(self.session.tracks_to_use()[0].color))
+        self.log("color: "+ str(self.session.tracks_to_use()[1].color))
+        self.log("color: "+ str(self.session.tracks_to_use()[2].color))
+        self.log("color: "+ str(self.session.tracks_to_use()[3].color))
+        self._send_midi([0x09, 0x09, 0x09, 0x09])
 
     def disconnect(self):
         """clean things up on disconnect"""

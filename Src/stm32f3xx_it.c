@@ -208,6 +208,9 @@ void TIM1_UP_TIM16_IRQHandler(void) {
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_CH6, ADC_SliderBuffer[5]);
     MIDI_sendCC(DATA_CHANNEL, CC_SLIDER_MAIN, ADC_SliderBuffer[6]);
 
+    for(uint8_t i = 0; i < 7; ++i)
+    WS2812_writeLed(6-i, 0x00, ADC_SliderBuffer[i], 0x00);
+
     update_pads_states();
     send_pads_messages();
 
